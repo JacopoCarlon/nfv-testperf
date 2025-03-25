@@ -359,6 +359,7 @@ function lxc_install() {
     [ ! -e "$ROOTFS_CHECK_FILE" ] && rootfs_install
 
     echo_section "--- Done ROOTFS, proceed to lxcconfrc.bash"
+    echo_action "--- Done ROOTFS, proceed to lxcconfrc.bash"
 
     # File may be non existent, no containers will be created
     source "$DIR_INSTALL_DATA/lxcconfrc.bash" || true
