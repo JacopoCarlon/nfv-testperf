@@ -328,6 +328,8 @@ function lxc_create_container() {
     local netmask=$6
     local sriov_dev_name=$7
 
+    echo_section "--- Starting lxc_create_container"
+
     sudo lxc-create "$container_name" -t none || true
 
     local FILE_BASE_CONFIG=$DIR_INSTALL_DATA/lxcbase.config
@@ -346,6 +348,7 @@ function lxc_create_container() {
     sudo cp "$FILE_CONT_CONFIG" "/var/lib/lxc/${container_name}/config"
 
     # FIXME: create bridge lxcbr0
+    echo_section "--- End of lxc_create_container"
 }
 
 function lxc_install() {
@@ -354,6 +357,8 @@ function lxc_install() {
     # FIXME: change to finalize installation part to copy stuff again to rootfs
     echo_action "LXC INSTALL DEP [ROOTFS]"
     [ ! -e "$ROOTFS_CHECK_FILE" ] && rootfs_install
+
+    echo_section "--- Done ROOTFS, proceed to lxcconfrc.bash"
 
     # File may be non existent, no containers will be created
     source "$DIR_INSTALL_DATA/lxcconfrc.bash" || true
@@ -373,6 +378,8 @@ function lxc_install() {
     # Create a directory for containers rc configuration files
     rm -rf "$DIR_ROOTFS/conf"
     mkdir -p "$DIR_ROOTFS/conf"
+
+    echo_section "--- lxc_install before iteration"
 
     # Iterate through containers specification
     for i in "${!LXC_CONT_NAMES[@]}"; do
@@ -407,10 +414,12 @@ EOF
             >>"$CONF_SRIOV_TESTPMD"
     done
 
+    echo_section "--- before magic : wait 5s "
+
     # MAGIC WAIT - DO NOT REMOVE, OTHERWISE NEXT OPERATION MAY FAIL
     # IF IT DOES, JUST REPEAT THE INSTALLATION COMMAND, IT WILL SKIP ALL THE
     # SKIPPABLE STUFF WHILE COMPLETING CORRECTLY
-    sleep 4s
+    sleep 5s
 
     echo_warning "NOTICE: Next sequence of commands may lead to failure of install command" \
         >/dev/stderr
@@ -429,6 +438,9 @@ EOF
     (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
     (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself)
     sudo lxc-stop -n "${LXC_CONT_NAMES[0]}"
+
+    echo_section "--- after magic magic end"
+
 }
 
 function lxc_remove() {
