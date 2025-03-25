@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# This file contains the configuration for containers that shall be installed in
+# the machine, there is another copy that mirrors this one with different
+# MAC/IP addresses, for use between multiple machines.
+# Swap them to install on the second machine.
+
 LXC_CONT_NAMES=(    \
     dpdk_c0         \
     dpdk_c1         \
@@ -13,35 +18,32 @@ LXC_CONT_NAMES=(    \
     dpdk_three1     \
 )
 
-# Use PHYSICAL CORES from NUMA node0 (even numbers, avoid hyperthreads)
 LXC_CONT_CPUS=(         \
-    0,2                 \
     4,6                 \
     8,10                \
     12,14               \
     16,18               \
-    20,22               \
-    24,26               \
-    28,30               \
-    0,2,4               \  # For three0 (3 cores)
-    6,8,10              \  # For three1 (3 cores)
+    5,7                 \
+    9,11                \
+    13,15               \
+    17,19               \
+    4,6,8               \
+    10,12,14            \
 )
 
-# Use your X710 VF interfaces (enp4s2* from `ip link`)
 LXC_CONT_VFS=(          \
     enp4s2              \
     enp4s2f1            \
-    enp4s2              \  # Adjust if more VFs exist
-    enp4s2f1            \
-    enp4s2              \
-    enp4s2f1            \
-    enp4s2              \
-    enp4s2f1            \
+    enp4s2f2            \
+    enp4s2f3            \
+    enp4s2f4            \
+    enp4s2f5            \
+    enp4s2f6            \
+    enp4s2f7            \
     enp4s2              \
     enp4s2f1            \
 )
 
-# MACs (ensure uniqueness)
 LXC_CONT_MACS=(         \
     02:00:00:00:00:10   \
     02:00:00:00:00:11   \
@@ -51,22 +53,21 @@ LXC_CONT_MACS=(         \
     02:00:00:00:00:15   \
     02:00:00:00:00:16   \
     02:00:00:00:00:17   \
-    02:00:00:00:00:18   \
-    02:00:00:00:00:19   \
+    02:00:00:00:00:10   \
+    02:00:00:00:00:11   \
 )
 
-# IPs cplex3
 LXC_CONT_IPS=(          \
-    172.31.100.10       \
-    172.31.100.11       \
-    172.31.100.12       \
-    172.31.100.13       \
-    172.31.100.14       \
-    172.31.100.15       \
-    172.31.100.16       \
-    172.31.100.17       \
-    172.31.100.18       \
-    172.31.100.19       \
+    10.0.3.10           \
+    10.0.3.11           \
+    10.0.3.12           \
+    10.0.3.13           \
+    10.0.3.14           \
+    10.0.3.15           \
+    10.0.3.16           \
+    10.0.3.17           \
+    10.0.3.10           \
+    10.0.3.11           \
 )
 
 LXC_CONT_NMASKS=(       \
@@ -82,7 +83,6 @@ LXC_CONT_NMASKS=(       \
     24                  \
 )
 
-# "uioX" for using igb_uio, need change "vfio-pci" if using VFIO ..?
 LXC_CONT_VFDEVS=(       \
     uio0                \
     uio1                \
@@ -92,22 +92,21 @@ LXC_CONT_VFDEVS=(       \
     uio5                \
     uio6                \
     uio7                \
-    uio8                \
-    uio9                \
+    uio0                \
+    uio1                \
 )
 
-# Full PCI addresses of your X710 VFs (from lspci)
 LXC_CONT_VFPCIS=(       \
-    0000:04:02.0        \
-    0000:04:02.1        \
-    0000:04:02.0        \  
-    0000:04:02.1        \
-    0000:04:02.0        \
-    0000:04:02.1        \
-    0000:04:02.0        \
-    0000:04:02.1        \
-    0000:04:02.0        \
-    0000:04:02.1        \
+    04:02.0             \
+    04:02.1             \
+    04:02.2             \
+    04:02.3             \
+    04:02.4             \
+    04:02.5             \
+    04:02.6             \
+    04:02.7             \
+    04:02.0             \
+    04:02.1             \
 )
 
 LXC_CONT_SOCKS=(        \
@@ -119,6 +118,6 @@ LXC_CONT_SOCKS=(        \
     sock5               \
     sock6               \
     sock7               \
-    sock8               \
-    sock9               \
+    sock0               \
+    sock1               \
 )
