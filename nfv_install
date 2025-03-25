@@ -269,6 +269,7 @@ function rootfs_install() {
         rm "$DIR_BUILDCORE_BUILD/busybox-1.29.3.tar.bz2"
         rm "$DIR_BUILDCORE_BUILD/sudo-1.8.26.tar.gz"
         # TODO: remove other stuff too ?
+        echo_action "done RM-ing UNUSED ARCHIVES"
     )
 
     # Copy rootfs into install directory
