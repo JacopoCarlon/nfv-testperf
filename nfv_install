@@ -355,6 +355,11 @@ function lxc_create_container() {
 
     sudo cp "$FILE_CONT_CONFIG" "/var/lib/lxc/${container_name}/config"
 
+    echo "Container config: " "/var/lib/lxc/${container_name}/config"
+    echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    cat "/var/lib/lxc/${container_name}/config"
+    echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     # FIXME: create bridge lxcbr0
     echo_section "--- End of lxc_create_container"
 }
