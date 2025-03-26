@@ -334,7 +334,7 @@ function lxc_create_container() {
     local netmask=$6
     local sriov_dev_name=$7
 
-    echo_warning "[ROOTFS] Invoked lxc_create_container with: " "$@" 
+    echo "[ROOTFS] Invoked lxc_create_container with: " "$@" 
 
     echo_section "--- Starting lxc_create_container"
 
