@@ -248,8 +248,7 @@ function rootfs_install() {
 
     if [ -e "$ROOTFS_CHECK_FILE" ]; then
         echo_warning "ALREADY INSTALLED -- SKIPPING" >/dev/stderr
-        echo_warning "INFO: if you want to re-install it, " \
-            "just remove it and install it once again." >/dev/stderr
+        echo_warning "INFO: if you want to re-install it, just remove it and install it once again." >/dev/stderr
         return 0
     fi
 
