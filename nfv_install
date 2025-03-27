@@ -603,15 +603,14 @@ function dpdk_install() {
         -Dplatform=generic \
         -Dbuildtype=debugoptimized \
         -Dlibdir=lib/x86_64-linux-gnu \
-        -Denable_drivers=/net/* \
-        -Ddisable_drivers=net/lio,net/octeontx,net/sfc,net/thunderx,net/vmxnet3 \
+        -Denable_drivers=net/intel/i40e \
         -Denable_kmods=true \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
         "$DIR_DPDK_SRC/build" \
         "$DIR_DPDK_SRC"
 
     # otherwise :
-
+    ### -Ddisable_drivers=net/lio,net/octeontx,net/sfc,net/thunderx,net/vmxnet3 \
     ### -Ddisable_apps=* \
     # -Dapps=[] \ ## does not work 
     # -Ddrivers=net/i40e \ ## net/intel/i40e works so use that
@@ -643,16 +642,17 @@ function dpdk_install() {
 
     # Load modules
     echo_action "Loading igb_uio !!!"
+
     sudo modprobe uio
     sudo modprobe igb_uio
-
-    echo "done installing igb_uio module !!!" 
-
 
     ## TODO !!! this is required : 
     ####  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py --status
     ####  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
+    ####  lsmod | grep *uio*
 
+
+    echo "done installing igb_uio module !!!" 
 
 
     # # Pushing all environment variables for DPDK into a single file

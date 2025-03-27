@@ -35,7 +35,7 @@ LDFLAGS += -Wl,--whole-archive -ldpdk \
 all: $(APP)
 
 $(APP): $(OBJS)
-	$(CC) $^ $(LDFLAGS) $(DPDK_LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
