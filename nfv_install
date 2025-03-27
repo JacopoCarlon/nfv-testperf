@@ -804,7 +804,13 @@ function ovs_install() {
     (
         cd "$DIR_OVS_SRC"
         echo_action "OVS CONFIGURE BUILD"
-        ./configure "--with-dpdk=$DIR_DPDK_BUILD"
+
+        # Set DPDK build directory and pkg-config path
+        export PKG_CONFIG_PATH="$DIR_DPDK_SRC/build/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
+
+        ## !!! align with new dpdk build process and location
+        ##./configure "--with-dpdk=$DIR_DPDK_BUILD"
+        ./configure "--with-dpdk=$DIR_DPDK_SRC/build"
 
         echo_action "OVS BUILD (-j $MAKECPUS)"
         make -j "$MAKECPUS"
