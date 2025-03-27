@@ -640,6 +640,14 @@ function dpdk_install() {
     igbuio_install
 
 
+    # Load modules
+    echo_action "Loading igb_uio !!!"
+    sudo modprobe uio
+    sudo modprobe igb_uio
+
+    echo "done installing igb_uio module !!!" 
+
+
     ## TODO !!! this is required : 
     ####  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py --status
     ####  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
@@ -690,12 +698,7 @@ function igbuio_install() {
     sudo cp igb_uio.ko "/lib/modules/$(uname -r)/kernel/drivers/uio/"
     sudo depmod -a
 
-    # Load modules
-    echo_action "Loading igb_uio"
-    sudo modprobe uio
-    sudo modprobe igb_uio
-
-    echo "done installing igb_uio module !!!" 
+    echo "End of igb_uio install, needs to be loaded !"
 }
 
 
@@ -983,7 +986,7 @@ function snabb_remove() {
 
 ################ CUSTOM PROGRAMS MANAGEMENT ################
 
-function bin_install() {
+function old_bin_install() {
     echo_section "Installing custom scripts and binaries"
 
     echo_action "INSTALL TESTAPP DEP [ROOTFS]"
@@ -1022,6 +1025,48 @@ function bin_install() {
     echo_action "INSTALL CONFIGURATIONS"
     cp "${DIR_CONFIGURATIONS}/"* "${DIR_CONFIGRC}"
 }
+
+
+function bin_install() {
+    echo_section "Installing custom scripts and binaries"
+
+    echo_action "INSTALL TESTAPP DEP [ROOTFS]"
+    [ ! -e "$ROOTFS_CHECK_FILE" ] && rootfs_install
+
+    echo_action "INSTALL TESTAPP DEP [DPDK]"
+    [ ! -e "$DPDK_CHECK_FILE" ] && dpdk_install
+
+    # Set DPDK environment for pkg-config
+    export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
+    export LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+    # Required by Makefile
+    export DIR_ROOTFS=$DIR_ROOTFS  
+
+    # Build and install testapp
+    echo_action "MAKE INSTALL TESTAPP (-j $MAKECPUS)"
+    make -C "$DIR_TESTAPP" -j "$MAKECPUS" clean
+    make -C "$DIR_TESTAPP" -j "$MAKECPUS"
+    make -C "$DIR_TESTAPP" -j "$MAKECPUS" install
+
+    # Install CPU mask utility
+    echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
+    make -C "$DIR_CPUMASK" -j "$MAKECPUS"
+
+    # Copy binaries to rootfs
+    echo_action "INSTALL BIN IN ROOTFS"
+    cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
+    [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
+
+    # Install scripts and configs
+    echo_action "INSTALL COMMANDS (SCRIPTS)"
+    cp "$DIR_BIN"/* "$DIR_BIN_DST/" 2>/dev/null || true
+    echo_action "INSTALL CONFIGURATIONS"
+    cp "${DIR_CONFIGURATIONS}/"* "${DIR_CONFIGRC}"
+}
+
+
+
+
 
 function bin_remove() {
     echo_section "Removing custom scripts and binaries"
