@@ -826,7 +826,7 @@ function ovs_install() {
 
         #### as per https://docs.openvswitch.org/en/latest/intro/install/dpdk/ : 
         ./configure \
-            --with-dpdk=static 
+            --with-dpdk="$DIR_DPDK_SRC/build/lib/"
 
 
         echo_warning "done configure, will build makecpus "
