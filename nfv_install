@@ -603,7 +603,8 @@ function dpdk_install() {
         -Dplatform=generic \
         -Dbuildtype=debugoptimized \
         -Dlibdir=lib/x86_64-linux-gnu \
-        -Denable_drivers=/net/intel/i40e \
+        -Denable_drivers=/net/* \
+        -Ddisable_drivers=net/lio,net/octeontx,net/sfc,net/thunderx,net/vmxnet3 \
         -Denable_kmods=true \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
         "$DIR_DPDK_SRC/build" \

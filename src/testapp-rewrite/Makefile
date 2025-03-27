@@ -5,8 +5,7 @@ BUILD ?= release
 # DPDK configuration using pkg-config
 PKG_CONFIG ?= pkg-config
 DPDK_CFLAGS := $(shell $(PKG_CONFIG) --cflags libdpdk)
-DPDK_LDFLAGS := $(shell $(PKG_CONFIG) --libs libdpdk)
-
+DPDK_LDFLAGS := $(shell $(PKG_CONFIG) --libs libdpdk | sed 's/-Wl,--whole-archive\s.*\s-Wl,--no-whole-archive//')
 # Source files
 SRCS = main.c config.c commands.c threads.c cores.c timestamp.c \
        loops.c stats.c nfv_socket.c nfv_socket_simple.c nfv_socket_dpdk.c dpdk.c
