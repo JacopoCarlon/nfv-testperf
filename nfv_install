@@ -807,10 +807,6 @@ function ovs_install() {
 
         ## we need a more updated patch, but nice idea !
         find "$DIR_OVS_SRC" -type f -print0 | xargs -0 sed -i '
-            s/RTE_RTE_ETHER_CRC_LEN/RTE_ETHER_CRC_LEN/g;
-            s/RTE_RTE_ETHER_HDR_LEN/RTE_ETHER_HDR_LEN/g;
-            s/RTE_RTE_ETHER_MIN_MTU/RTE_ETHER_MIN_MTU/g;
-            s/RTE_RTE_ETHER_MTU/RTE_ETHER_MTU/g;
             s/e_RTE_METER_GREEN/RTE_COLOR_GREEN/g;
             s/struct ether_addr/struct rte_ether_addr/g;
             s/struct ether_hdr/struct rte_ether_hdr/g;
@@ -1181,7 +1177,10 @@ DPDK_VERSION=25.03
 
 ## https://www.openvswitch.org/download/ 
 OVS_VERSION=3.5.0
-VPP_VERSION=19.08.1-release
+
+## https://s3-docs.fd.io/vpp/25.06/gettingstarted/installing/ubuntu.html#vpp-release-repo 
+## update 19.08.1-release -> 22.06
+VPP_VERSION=22.06
 
 ######################### VARIABLES ########################
 
