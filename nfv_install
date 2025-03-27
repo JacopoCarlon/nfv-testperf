@@ -62,7 +62,20 @@ function echo_warning() {
 }
 
 #################### UTILITY FUNCTIONS #####################
-lxc_
+
+function parse_parameters() {
+    args=""
+    for opt in "$@"; do
+        case $opt in
+        -i)
+            # Install command, default action
+            cmd=i
+            ;;
+        -d)
+            # Delete command
+            cmd=d
+            ;;
+        -y)
             # Accept all default parameters
             default=y
             ;;
@@ -627,10 +640,10 @@ function dpdk_install() {
     igbuio_install
 
 
-    ## TODO : this is very weird :/
-    ## now we need to bind the interfaces to it, otherwise nothing can happen apparently !!!
- ##  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py --status
- ##  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
+    ## TODO !!! this is required : 
+    ####  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py --status
+    ####  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
+
 
 
     # # Pushing all environment variables for DPDK into a single file
