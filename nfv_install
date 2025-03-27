@@ -795,16 +795,29 @@ function ovs_install() {
         # without changing behavior, this "patches" OVS to support newer DPDK
         # versions
         # (important: -print0 must be last argument)
+        ### find "$DIR_OVS_SRC" -type f -print0 | xargs -0 sed -i '
+        ###     s/e_RTE_METER_GREEN/RTE_COLOR_GREEN/g;
+        ###     s/struct ether_addr/struct rte_ether_addr/g;
+        ###     s/struct ether_hdr/struct rte_ether_hdr/g;
+        ###     s/ETHER_CRC_LEN/RTE_ETHER_CRC_LEN/g;
+        ###     s/ETHER_HDR_LEN/RTE_ETHER_HDR_LEN/g;
+        ###     s/ETHER_MIN_MTU/RTE_ETHER_MIN_MTU/g;
+        ###     s/ETHER_MTU/RTE_ETHER_MTU/g;
+        ###     '   
+
+        ## we need a more updated patch, but nice idea !
         find "$DIR_OVS_SRC" -type f -print0 | xargs -0 sed -i '
+            s/RTE_RTE_ETHER_CRC_LEN/RTE_ETHER_CRC_LEN/g;
+            s/RTE_RTE_ETHER_HDR_LEN/RTE_ETHER_HDR_LEN/g;
+            s/RTE_RTE_ETHER_MIN_MTU/RTE_ETHER_MIN_MTU/g;
+            s/RTE_RTE_ETHER_MTU/RTE_ETHER_MTU/g;
             s/e_RTE_METER_GREEN/RTE_COLOR_GREEN/g;
             s/struct ether_addr/struct rte_ether_addr/g;
             s/struct ether_hdr/struct rte_ether_hdr/g;
-            s/ETHER_CRC_LEN/RTE_ETHER_CRC_LEN/g;
-            s/ETHER_HDR_LEN/RTE_ETHER_HDR_LEN/g;
-            s/ETHER_MIN_MTU/RTE_ETHER_MIN_MTU/g;
-            s/ETHER_MTU/RTE_ETHER_MTU/g;
-            '   
+            '
     )
+
+    echo_warning "patched OVS !!! "
 
     echo_action "PIP INSTALL DEP"
     sudo pip install --upgrade docutils sphinx ovs-sphinx-theme
@@ -837,6 +850,8 @@ function ovs_install() {
         sudo make install
     )
 
+    echo_action "done ovs make install "
+    echo_warning "done ovs make install "
 
     # Configuring OVS
 
