@@ -452,7 +452,7 @@ EOF
     for i in "${!LXC_CONT_NAMES[@]}"; do
         ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
         echo "for targeting ${LXC_CONT_NAMES[i]}"
-        ##sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${container_name}/rootfs"
+        sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
     done
 
     echo "rootfs should be in containers"
