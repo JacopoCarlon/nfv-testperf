@@ -706,7 +706,7 @@ function dpdk_remove() {
 ###################### VPP MANAGEMENT ######################
 
 function vpp_install() {
-    echo_section "Installing VPP from APT [version $VPP_VERSION]"
+    echo_section "Installing VPP from APT [version $VPP_VERSION] !!! "
 
     # Setting up the repository and adding key
     sudo sh -c "echo 'deb [trusted=yes] https://packagecloud.io/fdio/release/ubuntu bionic main' > /etc/apt/sources.list.d/99fd.io.list"
