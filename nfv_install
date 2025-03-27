@@ -735,7 +735,7 @@ function vpp_install() {
     echo_action "APT INSTALL VPP-OPTIONAL"
 
     ## no longer needs : "vpp-api-python=$VPP_VERSION" \
-    
+
     sudo apt install -y \
         "python3-vpp-api=$VPP_VERSION" \
         "vpp-dbg=$VPP_VERSION" \
@@ -1143,9 +1143,11 @@ function main_f() {
         directories_install
         packages_install
 
+        ## lxc needs uio, which needs dpdk ... 
+
         [[ "$args" == *_rootfs_* ]] && rootfs_install
-        [[ "$args" == *_lxc_* ]] && lxc_install
         [[ "$args" == *_dpdk_* ]] && dpdk_install
+        [[ "$args" == *_lxc_* ]] && lxc_install
         [[ "$args" == *_ovs_* ]] && ovs_install
         [[ "$args" == *_vpp_* ]] && vpp_install
         [[ "$args" == *_snabb_* ]] && snabb_install
@@ -1162,8 +1164,8 @@ function main_f() {
         [[ "$args" == *_snabb_* ]] && snabb_remove
         [[ "$args" == *_vpp_* ]] && vpp_remove
         [[ "$args" == *_ovs_* ]] && ovs_remove
-        [[ "$args" == *_dpdk_* ]] && dpdk_remove
         [[ "$args" == *_lxc_* ]] && lxc_remove
+        [[ "$args" == *_dpdk_* ]] && dpdk_remove
         [[ "$args" == *_rootfs_* ]] && rootfs_remove
         [[ "$args" == *_all_* ]] && directories_remove
 
