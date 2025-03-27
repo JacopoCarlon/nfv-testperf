@@ -546,9 +546,17 @@ function lxc_remove() {
 
 ##################### DPDK MANAGEMENT ######################
 
+## this was the old export to use before meson (dpdk21.smt or lower)
 function dpdk_export_vars() {
     export RTE_SDK=${DIR_DPDK_INSTALL}/share/dpdk/
     export RTE_TARGET=x86_64-native-linuxapp-gcc
+}
+
+
+function dpdk_export_vars() {
+    export RTE_SDK="$DIR_DPDK_SRC"                          # Path to DPDK source
+    export RTE_TARGET=build                                 # Meson build directory
+    export TESTPMD="$DIR_DPDK_SRC/build/app/dpdk-testpmd"   ## TSTPMD just in case
 }
 
 function dpdk_install() {
@@ -559,37 +567,63 @@ function dpdk_install() {
         return 0
     fi
 
-    # Downloading and extracting DPDK sources
+    # Download and extract DPDK
     echo_action "DOWNLOAD DPDK $DPDK_VERSION"
     (
         cd "$DIR_BASE"
-        wget "http://fast.dpdk.org/rel/dpdk-${DPDK_VERSION}.tar.xz" \
-            -O dpdk.tar.xz
-
+        wget "http://fast.dpdk.org/rel/dpdk-${DPDK_VERSION}.tar.xz" -O dpdk.tar.xz
         rm -rf "$DIR_DPDK_SRC"
         mkdir -p "$DIR_DPDK_SRC"
         tar xvf dpdk.tar.xz -C "$DIR_DPDK_SRC" --strip 1
         rm dpdk.tar.xz
     )
 
-    # Changing a configuration setting for i40e driver
-    sed -i -E "s/CONFIG_RTE_LIBRTE_I40E_16BYTE_RX_DESC=n/CONFIG_RTE_LIBRTE_I40E_16BYTE_RX_DESC=y/" "$DIR_DPDK_SRC/config/common_base"
+    ## ## ## DPDK > 21.1 uses meson and no longer has the structure .../config/common_base
+    ## ## ## # Changing a configuration setting for i40e driver
+    ## ## ## sed -i -E "s/CONFIG_RTE_LIBRTE_I40E_16BYTE_RX_DESC=n/CONFIG_RTE_LIBRTE_I40E_16BYTE_RX_DESC=y/" "$DIR_DPDK_SRC/config/common_base"
+    ## ## ## # Changing a configuration setting for igb_uio driver
+    ## ## ## # (which is not built by default)
+    ## ## ## sed -i -E "s/CONFIG_RTE_EAL_IGB_UIO=n/CONFIG_RTE_EAL_IGB_UIO=y/" "$DIR_DPDK_SRC/config/common_base"
 
-    # Changing a configuration setting for igb_uio driver
-    # (which is not built by default)
-    sed -i -E "s/CONFIG_RTE_EAL_IGB_UIO=n/CONFIG_RTE_EAL_IGB_UIO=y/" "$DIR_DPDK_SRC/config/common_base"
+
+    ### !!! use Meson for DPDK 25.03 etc (should be anything above dpdk21.smt)
+    # Configure with Meson
+    echo_action "CONFIGURE DPDK WITH MESON"
+    meson setup \
+        -Dplatform=generic \
+        -Ddisable_apps=* \
+        -Denable_driver_i40e=true \
+        -Denable_kmods=true \
+        -Denable_libatomic=true \
+        -Dexamples=l2fwd,l3fwd,l3fwd-power \
+        build \
+        "$DIR_DPDK_SRC"
+
+
 
     rm -rf "$DIR_DPDK_BUILD"
     rm -rf "$DIR_DPDK_INSTALL"
 
-    # Build and install
-    echo_action "BUILD AND INSTALL DPDK $DPDK_VERSION (-j $MAKECPUS)"
-    make -C "$DIR_DPDK_SRC" -j "$MAKECPUS" install \
-        "RTE_SDK=$DIR_DPDK_SRC" \
-        "RTE_OUTPUT=$DIR_DPDK_BUILD" \
-        "DESTDIR=$DIR_DPDK_INSTALL" \
-        T=x86_64-native-linuxapp-gcc # \
-    # EXTRA_CFLAGS=-g
+    ##  ##  ##  # Build and install
+    ##  ##  ##  echo_action "BUILD AND INSTALL DPDK $DPDK_VERSION (-j $MAKECPUS)"
+    ##  ##  ##  make -C "$DIR_DPDK_SRC" -j "$MAKECPUS" install \
+    ##  ##  ##      "RTE_SDK=$DIR_DPDK_SRC" \
+    ##  ##  ##      "RTE_OUTPUT=$DIR_DPDK_BUILD" \
+    ##  ##  ##      "DESTDIR=$DIR_DPDK_INSTALL" \
+    ##  ##  ##      T=x86_64-native-linuxapp-gcc # \
+
+    ## ## ## # EXTRA_CFLAGS=-g
+
+
+    # Build and install 25.03 approved
+    echo_action "BUILD AND INSTALL DPDK $DPDK_VERSION"
+    ninja -C "$DIR_DPDK_SRC/build"
+    sudo ninja -C "$DIR_DPDK_SRC/build" install
+
+
+    # Install igb_uio driver
+    igbuio_install
+
 
     # # Pushing all environment variables for DPDK into a single file
     # # TODO: is there anything else to be pushed into this file?
@@ -602,15 +636,47 @@ function dpdk_install() {
     # # Source it # TODO: STANDARD WAY TO FIND THIS FILE
     # source $CONF_DPDK_RC
 
+
+
     # Export necessary variables for make
     dpdk_export_vars
 
-    echo_action "BUILD DPDK EXAMPLES (-j $MAKECPUS)"
-    make -C "$DIR_DPDK_INSTALL/share/dpdk/examples" -j "$MAKECPUS"
-    # EXTRA_CFLAGS=-g
+    ## ## ## echo_action "BUILD DPDK EXAMPLES (-j $MAKECPUS)"
+    ## ## ## make -C "$DIR_DPDK_INSTALL/share/dpdk/examples" -j "$MAKECPUS"
+    ## ## ## # EXTRA_CFLAGS=-g
 
     touch "$DPDK_CHECK_FILE"
 }
+
+
+# manually install igb_uio (since dpdk25.etc does not do it :/)
+function igbuio_install() {
+    echo_section "Installing igb_uio Driver"
+
+    # Check if igb_uio.ko already exists in kernel modules
+    if [ -e "/lib/modules/$(uname -r)/kernel/drivers/uio/igb_uio.ko" ]; then
+        echo_warning "igb_uio already installed - skipping"
+        return 0
+    fi
+
+    # Compile igb_uio from DPDK source
+    echo_action "Compiling igb_uio"
+    cd "$DIR_DPDK_SRC/kernel/linux/igb_uio"
+    make -C "/lib/modules/$(uname -r)/build" M="$PWD"
+
+    # Install the module
+    echo_action "Installing to kernel modules"
+    sudo cp igb_uio.ko "/lib/modules/$(uname -r)/kernel/drivers/uio/"
+    sudo depmod -a
+
+    # Load modules
+    echo_action "Loading igb_uio"
+    sudo modprobe uio
+    sudo modprobe igb_uio
+
+    echo "done installing igb_uio module !!!" 
+}
+
 
 function dpdk_remove() {
     echo_section "Removing DPDK $DPDK_VERSION"
