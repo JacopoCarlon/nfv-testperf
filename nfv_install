@@ -298,7 +298,7 @@ function rootfs_install() {
     # TODO: a directory where to put user-config for each container
     
     # Add user during rootFS creation
-    chroot "$DIR_ROOTFS" useradd -m myself
+    # chroot "$DIR_ROOTFS" useradd -m myself
 
     # This is used to check whether it is installed successfully or not
     touch "$ROOTFS_CHECK_FILE"
