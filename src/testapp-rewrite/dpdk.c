@@ -10,6 +10,7 @@
 #include "config.h"
 #include "dpdk.h"
 
+#define PRINT_DPDK_ERROR(str, ...) fprintf(stderr, "DPDK ERROR: " str, __VA_ARGS__)
 
 // Remove typedef for uint_t, use standard types
 // typedef unsigned int uint_t;  // Remove this line

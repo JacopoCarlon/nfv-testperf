@@ -11,10 +11,11 @@
 
 static const struct rte_eth_conf PORT_CONF_INIT = {
     .rxmode = {
-        .split_hdr_size = 0,
+        .mq_mode = RTE_ETH_MQ_RX_NONE,  // Multi-queue mode for RX
+        .offloads = 0,  // RX offload flags
     },
     .txmode = {
-        .mq_mode = ETH_MQ_TX_NONE,
+        .mq_mode = RTE_ETH_MQ_TX_NONE,  // Multi-queue mode for TX
     },
 };
 
@@ -64,9 +65,9 @@ void dpdk_setup_pkt_headers(struct rte_ether_hdr *eth_hdr,
 
     // Initialize ETH header
     rte_ether_addr_copy((struct rte_ether_addr *)conf->local_addr.mac.sll_addr,
-                        &eth_hdr->s_addr);
+                        &eth_hdr->dst_addr);
     rte_ether_addr_copy((struct rte_ether_addr *)conf->remote_addr.mac.sll_addr,
-                        &eth_hdr->d_addr);
+                        &eth_hdr->dst_addr);
     eth_hdr->ether_type = rte_cpu_to_be_16(RTE_ETHER_TYPE_IPV4);
 
     // Initialize UDP header
@@ -180,9 +181,10 @@ int dpdk_init(int argc, char *argv[], struct config *conf)
     rte_eth_dev_info_get(port_id, &dev_info);
 
     // If able to offload TX to device, do it FIXME: this sentence
-    if (dev_info.tx_offload_capa & DEV_TX_OFFLOAD_MBUF_FAST_FREE)
+    // old : if (dev_info.tx_offload_capa & DEV_TX_OFFLOAD_MBUF_FAST_FREE)
+    if (dev_info.tx_offload_capa & RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE)
     {
-        local_port_conf.txmode.offloads |= DEV_TX_OFFLOAD_MBUF_FAST_FREE;
+        local_port_conf.txmode.offloads |= RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE;
     }
 
     // Configure device
