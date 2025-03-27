@@ -599,7 +599,8 @@ function dpdk_install() {
         --wipe \
         -Dbuildtype=debugoptimized \
         -Dplatform=generic \
-        -Ddisable_apps=* \
+        -Dapps=[] \
+        -Dlibdir=lib/x86_64-linux-gnu \
         -Denable_drivers=/net/intel/i40e \
         -Denable_kmods=true \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
@@ -813,7 +814,7 @@ function ovs_install() {
         ##./configure "--with-dpdk=$DIR_DPDK_BUILD"
         ## ## ./configure "--with-dpdk=$DIR_DPDK_SRC/build"
 
-        echo "calling configure : "
+        echo "calling configure, DIR_DPDK_SRC is $DIR_DPDK_SRC !!!"
 
         ./configure \
             "--with-dpdk=$DIR_DPDK_SRC/build" \
