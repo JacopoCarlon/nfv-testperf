@@ -810,16 +810,24 @@ function ovs_install() {
         # Set DPDK build directory and pkg-config path
         export PKG_CONFIG_PATH="$DIR_DPDK_SRC/build/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
 
+        ## shared instead of static
+        export LD_LIBRARY_PATH="$DIR_DPDK_SRC/build/lib"
+
         ## !!! align with new dpdk build process and location
         ##./configure "--with-dpdk=$DIR_DPDK_BUILD"
         ## ## ./configure "--with-dpdk=$DIR_DPDK_SRC/build"
 
         echo "calling configure, DIR_DPDK_SRC is $DIR_DPDK_SRC !!!"
 
-        ./configure \
-            "--with-dpdk=$DIR_DPDK_SRC/build" \
-            LIBS="-L$DIR_DPDK_SRC/build/lib/x86_64-linux-gnu" \
-            CFLAGS="-I$DIR_DPDK_SRC/build/include"
+        ##./configure \
+        ##    "--with-dpdk=$DIR_DPDK_SRC/build" \
+        ##    LIBS="-L$DIR_DPDK_SRC/build/lib/x86_64-linux-gnu" \
+        ##    CFLAGS="-I$DIR_DPDK_SRC/build/include"
+
+
+        #### as per https://docs.openvswitch.org/en/latest/intro/install/dpdk/ : 
+        ./configure --with-dpdk=static
+
 
         echo "done configure, will make -j "
 
