@@ -598,7 +598,6 @@ function dpdk_install() {
     meson setup \
         --wipe \
         -Dplatform=generic \
-        -Ddefault_library=both \
         -Dbuildtype=debugoptimized \
         -Dlibdir=lib/x86_64-linux-gnu \
         -Denable_drivers=/net/intel/i40e \
@@ -815,7 +814,7 @@ function ovs_install() {
     # Build and install OVS
     (
         cd "$DIR_OVS_SRC"
-        echo_action "OVS CONFIGURE BUILD"
+        echo_action "OVS CONFIGURE BUILD, DIR_OVS_SRC : $DIR_OVS_SRC !!!"
 
         # Set paths for DPDK detection
         export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
