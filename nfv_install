@@ -239,6 +239,9 @@ function packages_install() {
     #sudo apt update # FIXME: re-enable this
     sudo apt install git build-essential libnuma-dev lxc \
         pkg-config python3-pip automake -y
+    sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+
+    echo_warning "Done installing general dependencies "
 }
 
 #################### ROOTFS MANAGEMENT #####################
@@ -709,12 +712,17 @@ function vpp_install() {
     echo_section "Installing VPP from APT [version $VPP_VERSION] !!! "
 
     # Setting up the repository and adding key
-    sudo sh -c "echo 'deb [trusted=yes] https://packagecloud.io/fdio/release/ubuntu bionic main' > /etc/apt/sources.list.d/99fd.io.list"
-    curl -L https://packagecloud.io/fdio/release/gpgkey | sudo apt-key add -
+    ## sudo sh -c "echo 'deb [trusted=yes] https://packagecloud.io/fdio/release/ubuntu bionic main' > /etc/apt/sources.list.d/99fd.io.list"
+    ## curl -L https://packagecloud.io/fdio/release/gpgkey | sudo apt-key add -
 
-    echo_action "APT INSTALL VPP-REQUIRED"
+    # Let's use FDio's official script to add repository and key
+    echo_action "Adding FDio repository for VPP 25.02"
+    curl -s https://packagecloud.io/install/repositories/fdio/2502/script.deb.sh | sudo bash
+
+
 
     # Install Mandatory Packages
+    echo_action "APT INSTALL VPP-REQUIRED"
     sudo apt update
     sudo apt install -y \
         "vpp=$VPP_VERSION" \
@@ -722,9 +730,9 @@ function vpp_install() {
         "vpp-plugin-core=$VPP_VERSION" \
         "vpp-plugin-dpdk=$VPP_VERSION"
 
-    echo_action "APT INSTALL VPP-OPTIONAL"
 
     # Install Optional Packages
+    echo_action "APT INSTALL VPP-OPTIONAL"
     sudo apt install -y \
         "vpp-api-python=$VPP_VERSION" \
         "python3-vpp-api=$VPP_VERSION" \
@@ -732,12 +740,15 @@ function vpp_install() {
         "vpp-dev=$VPP_VERSION" \
         "libvppinfra-dev=$VPP_VERSION"
 
+
     # Disable automatic VPP execution as a service
-    sudo systemctl stop vpp || true
+    sudo systemctl stop vpp 2>/dev/null || true
     sudo systemctl disable vpp
 
     # Copy startup configuration for VPP in install location
     cp "$DIR_INSTALL_DATA/vppconfig.conf" "$CONF_VPP"
+
+    echo "done installing vpp !!!" 
 }
 
 function vpp_remove() {
@@ -1180,7 +1191,7 @@ OVS_VERSION=3.5.0
 
 ## https://s3-docs.fd.io/vpp/25.06/gettingstarted/installing/ubuntu.html#vpp-release-repo 
 ## update 19.08.1-release -> 22.06
-VPP_VERSION=22.02
+VPP_VERSION=25.02-release 
 
 ######################### VARIABLES ########################
 
