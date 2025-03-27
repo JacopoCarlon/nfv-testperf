@@ -17,7 +17,7 @@ OBJS := $(SRCS:.c=.o)
 # Compiler flags
 CFLAGS += -I./inc -Wall -Wextra -march=native
 CFLAGS += $(DPDK_CFLAGS)
-### CFLAGS += -D_GNU_SOURCE  # Ensure GNU extensions are available
+CFLAGS += -D_GNU_SOURCE  # Ensure GNU extensions are available
 
 
 
