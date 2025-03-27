@@ -358,7 +358,7 @@ function lxc_create_container() {
 
     echo "Container config: " "/var/lib/lxc/${container_name}/config"
     echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    cat "/var/lib/lxc/${container_name}/config"
+    sudo cat "/var/lib/lxc/${container_name}/config"
     echo
     echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
