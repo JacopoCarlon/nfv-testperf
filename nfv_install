@@ -597,6 +597,8 @@ function dpdk_install() {
 
     meson setup \
         -- wipe \
+        -Dplatform=generic \
+        -Ddisable_apps=* \
         -Denable_drivers=/net/intel/i40e \
         -Denable_kmods=true \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
@@ -606,8 +608,6 @@ function dpdk_install() {
 
 
     #other options : 
-        ### -Dplatform=generic \
-        ###-Ddisable_apps=* \
 
 
     ## rm -rf "$DIR_DPDK_BUILD"
