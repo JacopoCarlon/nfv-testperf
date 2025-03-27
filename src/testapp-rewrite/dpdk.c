@@ -14,16 +14,18 @@ typedef unsigned int uint_t;
 
 /* ------------------------------- Constants -------------------------------- */
 
+// this needed to be updated for dpdk25.02 , i hope this is the right way
 static const struct rte_eth_conf PORT_CONF_INIT = {
-    .rxmode =
-        {
-            .split_hdr_size = 0,
-        },
-    .txmode =
-        {
-            .mq_mode = ETH_MQ_TX_NONE,
-        },
+    .rxmode = {
+        .mq_mode = RTE_ETH_MQ_RX_NONE,  // Multi-queue mode for RX
+        .offloads = 0,  // RX offload flags
+    },
+    .txmode = {
+        .mq_mode = RTE_ETH_MQ_TX_NONE,  // Multi-queue mode for TX
+    },
 };
+
+struct rte_eth_rxmode
 
 #define PRINT_DPDK_ERROR(str, ...)                                             \
     fprintf(stderr, "DPDK ERROR: " str, __VA_ARGS__)
@@ -149,8 +151,8 @@ int dpdk_init(int argc, char *argv[], struct config *conf) {
     rte_eth_dev_info_get(port_id, &dev_info);
 
     /* If able to offload TX to device, do it */
-    if (dev_info.tx_offload_capa & DEV_TX_OFFLOAD_MBUF_FAST_FREE) {
-        local_port_conf.txmode.offloads |= DEV_TX_OFFLOAD_MBUF_FAST_FREE;
+    if (dev_info.tx_offload_capa & RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE) {
+        local_port_conf.txmode.offloads |= RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE;
     }
 
     /* Configure device */

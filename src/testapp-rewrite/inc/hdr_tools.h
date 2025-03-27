@@ -34,9 +34,9 @@ static inline void pkt_hdr_setup(struct pkt_hdr *hdr, struct config *conf,
     // FIXME: to print ethernet addresses use rte_ether_format_addr, to read
     // them from a string use rte_ether_unformat_addr
     rte_ether_addr_copy((struct rte_ether_addr *)src->mac.sll_addr,
-                        &hdr->ether.s_addr);
+                        &hdr->ether.dst_addr);
     rte_ether_addr_copy((struct rte_ether_addr *)dst->mac.sll_addr,
-                        &hdr->ether.d_addr);
+                        &hdr->ether.dst_addr);
     hdr->ether.ether_type = rte_cpu_to_be_16(RTE_ETHER_TYPE_IPV4);
 
     // Initialize IP header
@@ -78,8 +78,8 @@ static inline void swap_ptrs(void *p1, void *p2, void *tmp, size_t size) {
 
 static inline void swap_ether_addr(struct rte_ether_hdr *hdr) {
     struct rte_ether_addr support;
-    struct rte_ether_addr *s_addr = &hdr->s_addr;
-    struct rte_ether_addr *d_addr = &hdr->d_addr;
+    struct rte_ether_addr *s_addr = &hdr->dst_addr;
+    struct rte_ether_addr *d_addr = &hdr->dst_addr;
     swap_ptrs(s_addr, d_addr, &support, sizeof(struct rte_ether_addr));
 }
 
@@ -100,8 +100,8 @@ static inline void swap_udp_port(struct rte_udp_hdr *hdr) {
 static inline bool hdr_check_incoming(const struct pkt_hdr *received_hdr,
                                       const struct pkt_hdr *expected_hdr) {
     // Check if destination MAC address is correct
-    if (!rte_is_same_ether_addr(&received_hdr->ether.d_addr,
-                                &expected_hdr->ether.d_addr))
+    if (!rte_is_same_ether_addr(&received_hdr->ether.dst_addr,
+                                &expected_hdr->ether.dst_addr))
         return false;
 
     // Check if destination IP address is correct
