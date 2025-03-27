@@ -462,12 +462,20 @@ EOF
     # The command is repeated because usually the first time fails.
     # If the last attempt fails, the installation fails
     sudo lxc-start -n "${LXC_CONT_NAMES[0]}"
+
+    echo_warning "--- doing pwd stuff"
     (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
     (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
     (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself)
+
+    echo_warning "--- done pwd stuff, will stop containers now"
     sudo lxc-stop -n "${LXC_CONT_NAMES[0]}"
 
+
+
     echo_section "--- after magic magic end"
+
+    echo "the end ????"
 
 }
 
