@@ -455,8 +455,9 @@ EOF
     for i in "${!LXC_CONT_NAMES[@]}"; do
         ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
         echo "for targeting ${LXC_CONT_NAMES[i]} and manually putting rootfs there"
-        sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
-        ## good, it works
+        #### sudo cp works , but rsync might be better tbh
+        ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
+        sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
     done
 
     echo "rootfs should be in containers"
@@ -467,7 +468,9 @@ EOF
     sudo lxc-start -n "${LXC_CONT_NAMES[0]}"
 
     # Create the user "myself" if it doesn't exist
-    sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- /bin/bash -c "id -u myself &>/dev/null || useradd -m myself"
+    #### sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- /bin/bash -c "id -u myself &>/dev/null || useradd -m myself"
+    sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- /bin/sh -c "id -u myself &>/dev/null || useradd -m myself"
+
 
     echo_warning "--- doing pwd stuff"
     (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
