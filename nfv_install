@@ -596,7 +596,7 @@ function dpdk_install() {
     #       based on pwd and the location of meson.build.
 
     meson setup \
-        -- wipe \
+        --wipe \
         -Dplatform=generic \
         -Ddisable_apps=* \
         -Denable_drivers=/net/intel/i40e \
@@ -605,10 +605,9 @@ function dpdk_install() {
         build \
         "$DIR_DPDK_SRC"
 
-
-
-    #other options : 
-
+    # otherwise :
+    # -Dapps=[] \
+    # -Ddrivers=net/i40e \
 
     ## rm -rf "$DIR_DPDK_BUILD"
     ## rm -rf "$DIR_DPDK_INSTALL"
