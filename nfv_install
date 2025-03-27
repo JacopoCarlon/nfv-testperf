@@ -814,7 +814,7 @@ function ovs_install() {
     # Build and install OVS
     (
         cd "$DIR_OVS_SRC"
-        echo_action "OVS CONFIGURE BUILD, DIR_OVS_SRC : $DIR_OVS_SRC !!!"
+        echo_action "OVS CONFIGURE BUILD, DIR_OVS_SRC : $DIR_OVS_SRC , using ovs version : $OVS_VERSION !!!"
 
         # Set paths for DPDK detection
         export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
@@ -1149,7 +1149,9 @@ COLOR_WARN='\033[1;35m'
 NC='\033[0m'
 
 DPDK_VERSION=25.03
-OVS_VERSION=2.11.1
+
+## ovs 3.x.x is compatible with dpdk>21.1
+OVS_VERSION=3.3.0
 VPP_VERSION=19.08.1-release
 
 ######################### VARIABLES ########################
