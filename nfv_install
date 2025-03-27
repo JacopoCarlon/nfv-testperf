@@ -599,7 +599,7 @@ function dpdk_install() {
         --wipe \
         -Dbuildtype=debugoptimized \
         -Dplatform=generic \
-        -Dapps=[] \
+        -Ddisable_apps=* \
         -Dlibdir=lib/x86_64-linux-gnu \
         -Denable_drivers=/net/intel/i40e \
         -Denable_kmods=true \
