@@ -48,7 +48,7 @@ int cores_setaffinity(core_t core_id) {
 
 core_t cores_get_master(struct config *conf) {
     if (USE_DPDK(conf)) {
-        return rte_get_master_lcore();
+        return rte_get_main_lcore();
     } else {
         return cores_master;
     }

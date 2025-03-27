@@ -29,7 +29,6 @@ endif
 LDFLAGS += $(DPDK_LDFLAGS)
 # Additional required libraries for DPDK
 LDFLAGS += -Wl,--whole-archive -ldpdk \
-           -Wl,--no-whole-archive \
            -lrt -pthread -lnuma -ldl
 
 .PHONY: all clean install

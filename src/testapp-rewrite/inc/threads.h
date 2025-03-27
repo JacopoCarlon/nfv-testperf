@@ -21,8 +21,8 @@ static inline int thread_start(struct config *conf, struct thread_info *tinfo) {
     if (USE_DPDK(conf))
         return rte_eal_remote_launch(tinfo->tbody, tinfo->arg, tinfo->core_id);
     // TODO warning: cast between incompatible function types from ‘int (*)(void *)’ to ‘void * (*)(void *)’ [-Wcast-function-type]
-    return pthread_create(&tinfo->tid, NULL, (void *(*)(void *))thread_starter,
-                          tinfo);
+    // return pthread_create(&tinfo->tid, NULL, (void *(*)(void *))thread_starter, tinfo);
+    return pthread_create(&tinfo->tid, NULL, (int(*)(void *))thread_starter, tinfo);
 } 
 
 static inline int thread_join(struct config *conf, struct thread_info *tinfo,
