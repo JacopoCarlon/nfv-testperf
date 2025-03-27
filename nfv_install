@@ -1139,6 +1139,9 @@ function finalize_install() {
     add_line_if_missing "$HOME/.zprofile" "source \"$NFV_RCFILE\"" \
         "$NFV_RCFILE"
 
+
+    echo_section " end of finalization == end of installation !!!!!! "
+
     # I source the file to have everything available immediately
     source "$NFV_RCFILE"
 }
