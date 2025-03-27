@@ -451,7 +451,7 @@ EOF
     echo "after magic, move rootfs to containers before start"
     for i in "${!LXC_CONT_NAMES[@]}"; do
         ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
-        sudo cp -r "$DIR_ROOTFS" "/var/lib/lxc/${container_name}/rootfs"
+        sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${container_name}/rootfs"
     done
 
     echo "rootfs should be in containers"
