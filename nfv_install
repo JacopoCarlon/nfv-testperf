@@ -1165,7 +1165,7 @@ DPDK_VERSION=25.03
 #      |                          RTE_ETHER_MTU
 
 ## https://www.openvswitch.org/download/ 
-OVS_VERSION=3.5.90
+OVS_VERSION=3.5.0
 VPP_VERSION=19.08.1-release
 
 ######################### VARIABLES ########################
