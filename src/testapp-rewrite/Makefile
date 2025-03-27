@@ -17,6 +17,7 @@ APP = testapp
 # Compiler flags
 CFLAGS += -I./inc -Wall -Wextra -march=native
 CFLAGS += $(DPDK_CFLAGS)
+CFLAGS += -D_GNU_SOURCE  # Ensure GNU extensions are available
 
 ifeq ($(BUILD),debug)
     CFLAGS += -O0 -ggdb
@@ -26,6 +27,8 @@ endif
 
 # Linker flags
 LDFLAGS += $(DPDK_LDFLAGS)
+LDFLAGS += -pthread -lnuma -ldl -lrt  # Additional required libraries for DPDK
+
 
 .PHONY: all clean install
 

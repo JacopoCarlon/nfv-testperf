@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include <pthread.h>
+#include <sched.h>
 #include <rte_config.h>
 
 #define CORE_MAX RTE_MAX_LCORE
