@@ -733,8 +733,10 @@ function vpp_install() {
 
     # Install Optional Packages
     echo_action "APT INSTALL VPP-OPTIONAL"
+
+    ## no longer needs : "vpp-api-python=$VPP_VERSION" \
+    
     sudo apt install -y \
-        "vpp-api-python=$VPP_VERSION" \
         "python3-vpp-api=$VPP_VERSION" \
         "vpp-dbg=$VPP_VERSION" \
         "vpp-dev=$VPP_VERSION" \
