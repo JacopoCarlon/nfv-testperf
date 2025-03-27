@@ -62,20 +62,7 @@ function echo_warning() {
 }
 
 #################### UTILITY FUNCTIONS #####################
-
-function parse_parameters() {
-    args=""
-    for opt in "$@"; do
-        case $opt in
-        -i)
-            # Install command, default action
-            cmd=i
-            ;;
-        -d)
-            # Delete command
-            cmd=d
-            ;;
-        -y)
+lxc_
             # Accept all default parameters
             default=y
             ;;
@@ -88,7 +75,7 @@ function parse_parameters() {
 
     # NOTICE: underscores are important
     if [ -z "$args" ] || [[ "$args" == *_all_* ]]; then
-        args="_all_rootfs_lxc_dpdk_ovs_vpp_snabb_bin_"
+        args="_all_rootfs_dpdk_lxc_ovs_vpp_snabb_bin_"
     fi
 }
 
@@ -638,6 +625,12 @@ function dpdk_install() {
 
     # Install igb_uio driver
     igbuio_install
+
+
+    ## TODO : this is very weird :/
+    ## now we need to bind the interfaces to it, otherwise nothing can happen apparently !!!
+ ##  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py --status
+ ##  sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
 
 
     # # Pushing all environment variables for DPDK into a single file
