@@ -16,11 +16,17 @@ extern volatile tsc_t __tsc_last;
  * DPDK function and to initialize the timer I need to initialize the whole
  * DPDK EAL, which is totally unnecessary in some cases...
  * */
-extern int rte_eal_timer_init(void);
+// this cannot work anymore sorry 
+// // // extern int rte_eal_timer_init(void);
 
 /* ------------------------- FUNCTION  DECLARATIONS ------------------------- */
 
-static inline int tsc_init(void) { return rte_eal_timer_init(); }
+// Initialize EAL properly instead of calling internal timer_init
+static inline int tsc_init(void) {
+    return rte_eal_init(0, NULL);  // Proper DPDK initialization
+}
+// // // static inline int tsc_init(void) { return rte_eal_timer_init(); }
+
 
 static inline tsc_t tsc_read(void) { return rte_rdtsc(); }
 
