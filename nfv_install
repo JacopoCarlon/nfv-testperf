@@ -605,6 +605,7 @@ function dpdk_install() {
         -Dlibdir=lib/x86_64-linux-gnu \
         -Denable_drivers=net/intel/i40e \
         -Denable_kmods=true \
+        -Denable_apps=l3fwd-power \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
         "$DIR_DPDK_SRC/build" \
         "$DIR_DPDK_SRC"
