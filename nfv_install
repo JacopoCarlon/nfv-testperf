@@ -597,6 +597,7 @@ function dpdk_install() {
 
     meson setup \
         --wipe \
+        -Dbuildtype=debugoptimized \
         -Dplatform=generic \
         -Ddisable_apps=* \
         -Denable_drivers=/net/intel/i40e \
@@ -794,10 +795,10 @@ function ovs_install() {
             s/ETHER_HDR_LEN/RTE_ETHER_HDR_LEN/g;
             s/ETHER_MIN_MTU/RTE_ETHER_MIN_MTU/g;
             s/ETHER_MTU/RTE_ETHER_MTU/g;
-            '
+            '   
     )
 
-    # echo_action "PIP INSTALL DEP"
+    echo_action "PIP INSTALL DEP"
     sudo pip install -I ovs-sphinx-theme
     sudo pip install -I docutils
 
@@ -810,7 +811,16 @@ function ovs_install() {
 
         ## !!! align with new dpdk build process and location
         ##./configure "--with-dpdk=$DIR_DPDK_BUILD"
-        ./configure "--with-dpdk=$DIR_DPDK_SRC/build"
+        ## ## ./configure "--with-dpdk=$DIR_DPDK_SRC/build"
+
+        echo "calling configure : "
+
+        ./configure \
+            "--with-dpdk=$DIR_DPDK_SRC/build" \
+            LIBS="-L$DIR_DPDK_SRC/build/lib/x86_64-linux-gnu" \
+            CFLAGS="-I$DIR_DPDK_SRC/build/include"
+
+        echo "done configure, will make -j "
 
         echo_action "OVS BUILD (-j $MAKECPUS)"
         make -j "$MAKECPUS"
