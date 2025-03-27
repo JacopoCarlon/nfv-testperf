@@ -820,8 +820,14 @@ function ovs_install() {
         export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
         export LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
 
-        # Configure OVS
-        ./configure --with-dpdk=static
+        # Explicitly specify DPDK library path
+        DPDK_LIBS_PATH="/usr/local/lib/x86_64-linux-gnu"
+        DPDK_INCLUDE_PATH="/usr/local/include/x86_64-linux-gnu"
+
+        # Configure OVS with explicit DPDK paths
+        ./configure --with-dpdk=static \
+            CFLAGS="-I${DPDK_INCLUDE_PATH}" \
+            LDFLAGS="-L${DPDK_LIBS_PATH}"
 
         echo_action "OVS BUILD (-j $MAKECPUS)"
         make -j "$MAKECPUS"
@@ -1151,7 +1157,14 @@ NC='\033[0m'
 DPDK_VERSION=25.03
 
 ## ovs 3.x.x is compatible with dpdk>21.1
-OVS_VERSION=3.3.0
+## 3.3.0 has bugs : 
+#lib/netdev-dpdk.c:1509:26: error: 'RTE_RTE_ETHER_MTU' undeclared (first use in this function); did you mean 'RTE_ETHER_MTU'?
+# 1509 |     dev->requested_mtu = RTE_RTE_ETHER_MTU;
+#      |                          ^~~~~~~~~~~~~~~~~
+#      |                          RTE_ETHER_MTU
+
+## https://www.openvswitch.org/download/ 
+OVS_VERSION=3.5.0
 VPP_VERSION=19.08.1-release
 
 ######################### VARIABLES ########################
