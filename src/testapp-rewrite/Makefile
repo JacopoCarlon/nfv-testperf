@@ -25,9 +25,20 @@ else
     CFLAGS += -O3
 endif
 
+# Comprehensive DPDK library linking
+DPDK_LIBS = -lrte_eal \
+            -lrte_mempool \
+            -lrte_ring \
+            -lrte_timer \
+            -lrte_mbuf \
+            -lrte_net \
+            -lrte_ethdev \
+            -lrte_kvargs
+
 # Linker flags
-LDFLAGS += $(DPDK_LDFLAGS)
-LDFLAGS += -pthread -lnuma -ldl -lrt  # Additional required libraries for DPDK
+LDFLAGS += $(DPDK_LDFLAGS) $(DPDK_LIBS)
+# Additional required libraries for DPDK
+LDFLAGS += -pthread -lnuma -ldl -lrt  
 
 .PHONY: all clean install
 
