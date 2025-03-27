@@ -1180,7 +1180,7 @@ OVS_VERSION=3.5.0
 
 ## https://s3-docs.fd.io/vpp/25.06/gettingstarted/installing/ubuntu.html#vpp-release-repo 
 ## update 19.08.1-release -> 22.06
-VPP_VERSION=24.02
+VPP_VERSION=22.02
 
 ######################### VARIABLES ########################
 
