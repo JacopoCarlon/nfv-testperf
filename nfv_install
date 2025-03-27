@@ -402,8 +402,6 @@ function lxc_install() {
     # Iterate through containers specification
     for i in "${!LXC_CONT_NAMES[@]}"; do
         echo_action "LXC-CREATE ${LXC_CONT_NAMES[i]}"
-        ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
-        sudo cp -r "$DIR_ROOTFS" "/var/lib/lxc/${container_name}/rootfs"
         lxc_create_container \
             "${LXC_CONT_NAMES[i]}" \
             "${LXC_CONT_CPUS[i]}" \
@@ -449,6 +447,14 @@ EOF
         >/dev/stderr
 
     mkdir -p /tmp/VIO
+
+    echo "after magic, move rootfs to containers before start"
+    for i in "${!LXC_CONT_NAMES[@]}"; do
+        ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
+        sudo cp -r "$DIR_ROOTFS" "/var/lib/lxc/${container_name}/rootfs"
+    done
+
+    echo "rootfs should be in containers"
 
     # When all containers are created, change 'myself' user password to no password
     # The command is repeated because usually the first time fails.
