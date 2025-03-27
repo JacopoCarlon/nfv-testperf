@@ -809,7 +809,7 @@ function ovs_install() {
 
         # Set DPDK build directory and pkg-config path
         
-        export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
+        export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig"
         ### export LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
 
         ## !!! align with new dpdk build process and location
@@ -826,9 +826,7 @@ function ovs_install() {
 
         #### as per https://docs.openvswitch.org/en/latest/intro/install/dpdk/ : 
         ./configure \
-            --with-dpdk=static \
-            LIBS="-ldpdk -lnuma -lpthread" \
-            CFLAGS="-I/usr/local/include/dpdk"
+            --with-dpdk=static 
 
 
         echo_warning "done configure, will build makecpus "
