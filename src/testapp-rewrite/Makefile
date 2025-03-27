@@ -5,7 +5,7 @@ BUILD ?= release
 # DPDK configuration using pkg-config
 PKG_CONFIG ?= pkg-config
 DPDK_CFLAGS := $(shell $(PKG_CONFIG) --cflags libdpdk)
-DPDK_LDFLAGS := $(shell $(PKG_CONFIG) --libs libdpdk)
+DPDK_LDFLAGS := $(shell $(PKG_CONFIG) --libs libdpdk) -lrte_eal 
 
 # Source files
 SRCS = main.c config.c commands.c threads.c cores.c timestamp.c \
@@ -26,7 +26,7 @@ else
 endif
 
 # Comprehensive DPDK library linking
-DPDK_LIBS = -lrte_eal \
+#	DPDK_LIBS = -lrte_eal \
             -lrte_mempool \
             -lrte_ring \
             -lrte_timer \
@@ -36,9 +36,14 @@ DPDK_LIBS = -lrte_eal \
             -lrte_kvargs
 
 # Linker flags
-LDFLAGS += $(DPDK_LDFLAGS) $(DPDK_LIBS)
+#	LDFLAGS += $(DPDK_LDFLAGS) $(DPDK_LIBS)
+
+
+
 # Additional required libraries for DPDK
-LDFLAGS += -pthread -lnuma -ldl -lrt  
+LDFLAGS += -Wl,--no-as-needed $(DPDK_LDFLAGS) -Wl,--as-needed
+LDFLAGS += -pthread -lnuma -ldl -lrt
+
 
 .PHONY: all clean install
 
