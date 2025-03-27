@@ -589,20 +589,29 @@ function dpdk_install() {
     ### !!! use Meson for DPDK 25.03 etc (should be anything above dpdk21.smt)
     # Configure with Meson
     echo_action "CONFIGURE DPDK WITH MESON"
+
+    ## syntax : meson setup [--wipe] -options builddir
+    # The setup command takes a builddir and a srcdir argument. 
+    #       If no srcdir is given Meson will deduce the srcdir 
+    #       based on pwd and the location of meson.build.
+
     meson setup \
-        -Dplatform=generic \
-        -Ddisable_apps=* \
-        ### -Denable_drivers=/net/intel/i40e \
+        -- wipe \
+        -Denable_drivers=/net/intel/i40e \
         -Denable_kmods=true \
-        ###-Denable_libatomic=true \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
         build \
         "$DIR_DPDK_SRC"
 
 
 
-    rm -rf "$DIR_DPDK_BUILD"
-    rm -rf "$DIR_DPDK_INSTALL"
+    #other options : 
+        ### -Dplatform=generic \
+        ###-Ddisable_apps=* \
+
+
+    ## rm -rf "$DIR_DPDK_BUILD"
+    ## rm -rf "$DIR_DPDK_INSTALL"
 
     ##  ##  ##  # Build and install
     ##  ##  ##  echo_action "BUILD AND INSTALL DPDK $DPDK_VERSION (-j $MAKECPUS)"
