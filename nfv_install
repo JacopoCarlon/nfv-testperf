@@ -296,6 +296,9 @@ function rootfs_install() {
     sudo mkdir -p "$DIR_ROOTFS/rootfs/var/run/hugepages"
 
     # TODO: a directory where to put user-config for each container
+    
+    # Add user during rootFS creation
+    chroot "$DIR_ROOTFS" useradd -m myself
 
     # This is used to check whether it is installed successfully or not
     touch "$ROOTFS_CHECK_FILE"
@@ -462,6 +465,9 @@ EOF
     # The command is repeated because usually the first time fails.
     # If the last attempt fails, the installation fails
     sudo lxc-start -n "${LXC_CONT_NAMES[0]}"
+
+    # Create the user "myself" if it doesn't exist
+    sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- /bin/bash -c "id -u myself &>/dev/null || useradd -m myself"
 
     echo_warning "--- doing pwd stuff"
     (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
