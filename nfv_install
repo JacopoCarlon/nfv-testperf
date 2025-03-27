@@ -602,7 +602,7 @@ function dpdk_install() {
         -Denable_drivers=/net/intel/i40e \
         -Denable_kmods=true \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
-        build \
+        "$DIR_DPDK_SRC/build" \
         "$DIR_DPDK_SRC"
 
     # otherwise :
