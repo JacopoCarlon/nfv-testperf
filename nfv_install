@@ -592,9 +592,9 @@ function dpdk_install() {
     meson setup \
         -Dplatform=generic \
         -Ddisable_apps=* \
-        -Denable_driver_i40e=true \
+        ### -Denable_drivers=/net/intel/i40e \
         -Denable_kmods=true \
-        -Denable_libatomic=true \
+        ###-Denable_libatomic=true \
         -Dexamples=l2fwd,l3fwd,l3fwd-power \
         build \
         "$DIR_DPDK_SRC"
