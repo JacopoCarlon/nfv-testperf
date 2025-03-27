@@ -10,11 +10,12 @@
 #include "config.h"
 #include "dpdk.h"
 
-typedef unsigned int uint_t;
+
+// Remove typedef for uint_t, use standard types
+// typedef unsigned int uint_t;  // Remove this line
 
 /* ------------------------------- Constants -------------------------------- */
 
-// this needed to be updated for dpdk25.02 , i hope this is the right way
 static const struct rte_eth_conf PORT_CONF_INIT = {
     .rxmode = {
         .mq_mode = RTE_ETH_MQ_RX_NONE,  // Multi-queue mode for RX
@@ -24,11 +25,6 @@ static const struct rte_eth_conf PORT_CONF_INIT = {
         .mq_mode = RTE_ETH_MQ_TX_NONE,  // Multi-queue mode for TX
     },
 };
-
-struct rte_eth_rxmode
-
-#define PRINT_DPDK_ERROR(str, ...)                                             \
-    fprintf(stderr, "DPDK ERROR: " str, __VA_ARGS__)
 
 /* --------------------------- Private Functions ---------------------------- */
 
@@ -43,15 +39,15 @@ struct rte_eth_rxmode
  *
  * \return the size of the cache.
  * */
-static inline int get_cache_size(uint_t n_mbufs) {
+static inline unsigned int get_cache_size(unsigned int n_mbufs) {
     /*
      * Idea behind this loop: the biggest divisor is equal to N / the smallest
      * divisor. However, the biggest divisor may be very big, so we keep
      * iterating until we find the biggest divisor that is also smaller than
      * CONFIG_RTE_MEMPOOL_CACHE_MAX_SIZE.
      * */
-    uint_t s_divisor = 1;
-    uint_t b_divisor = n_mbufs;
+    unsigned int s_divisor = 1;
+    unsigned int b_divisor = n_mbufs;
     do {
         do {
             ++s_divisor;
@@ -80,10 +76,10 @@ static inline int get_cache_size(uint_t n_mbufs) {
  * \return 0 on success, an error code otherwise.
  * */
 int dpdk_init(int argc, char *argv[], struct config *conf) {
-    uint_t ports;   /* Number of ports available, must be equal to 1 for this
+    unsigned int ports;   /* Number of ports available, must be equal to 1 for this
                        application if DPDK is used. */
-    uint_t n_mbufs; /* Number of mbufs to create in a pool. */
-    uint_t port_id; /* The id of the DPDK port to be used. */
+    unsigned int n_mbufs; /* Number of mbufs to create in a pool. */
+    uint16_t port_id; /* The id of the DPDK port to be used. */
 
     uint16_t tx_ring_descriptors, rx_ring_descriptors;
 
@@ -111,10 +107,6 @@ int dpdk_init(int argc, char *argv[], struct config *conf) {
         return -1;
     }
 
-    /* Never used after this, useless operation */
-    /* argc -= res; */
-    /* argv += res; */
-
     /* Get the number of DPDK ports available */
     ports = rte_eth_dev_count_avail();
     if (ports != 1) {
@@ -132,8 +124,9 @@ int dpdk_init(int argc, char *argv[], struct config *conf) {
         ++n_mbufs;
 
     /* Create the appropriate pool of buffers in hugepages memory. */
+    unsigned int cache_size = get_cache_size(n_mbufs);
     conf->dpdk.mbufs =
-        rte_pktmbuf_pool_create("mbuf_pool", n_mbufs, get_cache_size(n_mbufs),
+        rte_pktmbuf_pool_create("mbuf_pool", n_mbufs, cache_size,
                                 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
     if (conf->dpdk.mbufs == NULL) {
         PRINT_DPDK_ERROR("Unable to allocate mbufs: %s.\n",
@@ -148,7 +141,13 @@ int dpdk_init(int argc, char *argv[], struct config *conf) {
     /* Since we checked that there must be only one port, its port id is 0. */
     port_id = 0;
     conf->dpdk.portid = port_id;
-    rte_eth_dev_info_get(port_id, &dev_info);
+    
+    // Check return value of rte_eth_dev_info_get
+    res = rte_eth_dev_info_get(port_id, &dev_info);
+    if (res < 0) {
+        PRINT_DPDK_ERROR("Cannot get device info: %s.\n", rte_strerror(rte_errno));
+        return -1;
+    }
 
     /* If able to offload TX to device, do it */
     if (dev_info.tx_offload_capa & RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE) {
@@ -171,11 +170,6 @@ int dpdk_init(int argc, char *argv[], struct config *conf) {
                          rte_strerror(rte_errno));
         return -1;
     }
-
-    /* Get the source mac address that is associated with the given port */
-    // FIXME: NOT USED, USER MUST CONFIGURE THE MAC ADDRESS MANUALLY FROM
-    // COMMAND LINE
-    /* rte_eth_macaddr_get(port_id, &conf->dpdk.src_mac_addr); */
 
     /* Configure TX queue */
     txq_conf = dev_info.default_txconf;
