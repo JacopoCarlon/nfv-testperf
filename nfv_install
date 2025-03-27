@@ -597,9 +597,9 @@ function dpdk_install() {
 
     meson setup \
         --wipe \
-        -Dbuildtype=debugoptimized \
         -Dplatform=generic \
-        -Ddisable_apps=* \
+        -Ddefault_library=both \
+        -Dbuildtype=debugoptimized \
         -Dlibdir=lib/x86_64-linux-gnu \
         -Denable_drivers=/net/intel/i40e \
         -Denable_kmods=true \
@@ -608,8 +608,10 @@ function dpdk_install() {
         "$DIR_DPDK_SRC"
 
     # otherwise :
-    # -Dapps=[] \
-    # -Ddrivers=net/i40e \
+
+    ### -Ddisable_apps=* \
+    # -Dapps=[] \ ## does not work 
+    # -Ddrivers=net/i40e \ ## net/intel/i40e works so use that
 
     ## rm -rf "$DIR_DPDK_BUILD"
     ## rm -rf "$DIR_DPDK_INSTALL"
@@ -629,6 +631,7 @@ function dpdk_install() {
     echo_action "BUILD AND INSTALL DPDK $DPDK_VERSION"
     ninja -C "$DIR_DPDK_SRC/build"
     sudo ninja -C "$DIR_DPDK_SRC/build" install
+    sudo ldconfig
 
 
     # Install igb_uio driver
