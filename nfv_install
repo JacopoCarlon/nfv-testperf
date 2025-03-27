@@ -772,6 +772,11 @@ function ovs_install() {
         return 0
     fi
 
+    # Install build tools
+    echo_action "INSTALL BUILD TOOLS"
+    sudo apt-get install -y build-essential autoconf automake libtool python3
+
+
     # Downloading and extracting OVS sources
     echo_action "DOWNLOAD OVS"
     (
@@ -803,42 +808,26 @@ function ovs_install() {
     sudo pip install -I ovs-sphinx-theme
     sudo pip install -I docutils
 
+
+    # Build and install OVS
     (
         cd "$DIR_OVS_SRC"
         echo_action "OVS CONFIGURE BUILD"
 
-        # Set DPDK build directory and pkg-config path
-        
-        export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig"
-        ### export LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
+        # Set paths for DPDK detection
+        export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
+        export LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
 
-        ## !!! align with new dpdk build process and location
-        ##./configure "--with-dpdk=$DIR_DPDK_BUILD"
-        ## ## ./configure "--with-dpdk=$DIR_DPDK_SRC/build"
-
-        echo_warning "calling configure, DIR_DPDK_SRC is $DIR_DPDK_SRC !!!"
-
-        ##./configure \
-        ##    "--with-dpdk=$DIR_DPDK_SRC/build" \
-        ##    LIBS="-L$DIR_DPDK_SRC/build/lib/x86_64-linux-gnu" \
-        ##    CFLAGS="-I$DIR_DPDK_SRC/build/include"
-
-
-        #### as per https://docs.openvswitch.org/en/latest/intro/install/dpdk/ : 
-        ./configure \
-            --with-dpdk="$DIR_DPDK_SRC/build"
-
-
-        echo_warning "done configure, will build makecpus "
+        # Configure OVS
+        ./configure --with-dpdk=static
 
         echo_action "OVS BUILD (-j $MAKECPUS)"
         make -j "$MAKECPUS"
 
         echo_action "OVS INSTALL"
-        sudo make install 
-        
-        # TODO: change to another destination?
+        sudo make install
     )
+
 
     # Configuring OVS
 
