@@ -1053,7 +1053,8 @@ function bin_install() {
     echo_section "MAKE INSTALL TESTAPP (-j $MAKECPUS)" 
     ## make -C "$DIR_TESTAPP" -j "$MAKECPUS" clean
     ## make -C "$DIR_TESTAPP" -j "$MAKECPUS" V=1
-    make -C "$DIR_TESTAPP" -j "$MAKECPUS" clean install
+    make -C "$DIR_TESTAPP" -j "$MAKECPUS" clean 
+    make -C "$DIR_TESTAPP" -j "$MAKECPUS" install
 
     # Install CPU mask utility
     echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
