@@ -807,6 +807,7 @@ function ovs_install() {
     )
 
     echo_action "PIP INSTALL DEP"
+    sudo pip install --upgrade docutils sphinx ovs-sphinx-theme
     sudo pip install -I ovs-sphinx-theme
     sudo pip install -I docutils
 
@@ -825,7 +826,7 @@ function ovs_install() {
         DPDK_INCLUDE_PATH="/usr/local/include/x86_64-linux-gnu"
 
         # Configure OVS with explicit DPDK paths
-        ./configure --with-dpdk=static \
+        ./configure --with-dpdk=static --disable-documentation \
             CFLAGS="-I${DPDK_INCLUDE_PATH}" \
             LDFLAGS="-L${DPDK_LIBS_PATH}"
 
@@ -1164,7 +1165,7 @@ DPDK_VERSION=25.03
 #      |                          RTE_ETHER_MTU
 
 ## https://www.openvswitch.org/download/ 
-OVS_VERSION=3.5.0
+OVS_VERSION=3.5.90
 VPP_VERSION=19.08.1-release
 
 ######################### VARIABLES ########################
