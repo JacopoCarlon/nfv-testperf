@@ -1059,16 +1059,20 @@ function bin_install() {
     echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
     make -C "$DIR_CPUMASK" -j "$MAKECPUS"
 
+
     # Copy binaries to rootfs
     echo_action "INSTALL BIN IN ROOTFS"
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
+
 
     # Install scripts and configs
     echo_action "INSTALL COMMANDS (SCRIPTS)"
     cp "$DIR_BIN"/* "$DIR_BIN_DST/" 2>/dev/null || true
     echo_action "INSTALL CONFIGURATIONS"
     cp "${DIR_CONFIGURATIONS}/"* "${DIR_CONFIGRC}"
+
+
 }
 
 

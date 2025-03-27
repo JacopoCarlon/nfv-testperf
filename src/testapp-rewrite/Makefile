@@ -5,33 +5,35 @@ BUILD ?= release
 # DPDK configuration using pkg-config
 PKG_CONFIG ?= pkg-config
 DPDK_CFLAGS := $(shell $(PKG_CONFIG) --cflags libdpdk)
-##DPDK_LDFLAGS := $(shell $(PKG_CONFIG) --libs libdpdk | sed 's/-Wl,--whole-archive\s.*\s-Wl,--no-whole-archive//')
-DPDK_LDFLAGS := $(shell $(PKG_CONFIG) --libs libdpdk) -lrte_pmd_i40e -lrte_example_l3fwd_power
-
+DPDK_LDFLAGS := $(shell $(PKG_CONFIG) --libs libdpdk)
 
 # Source files
-SRCS = main.c config.c commands.c threads.c cores.c timestamp.c \
-       loops.c stats.c nfv_socket.c nfv_socket_simple.c nfv_socket_dpdk.c dpdk.c
+APP := testapp
+SRCS := main.c config.c commands.c threads.c cores.c timestamp.c \
+        loops.c stats.c nfv_socket.c nfv_socket_simple.c nfv_socket_dpdk.c dpdk.c
+OBJS := $(SRCS:.c=.o)
 
-OBJS = $(SRCS:.c=.o)
-APP = testapp
 
 # Compiler flags
 CFLAGS += -I./inc -Wall -Wextra -march=native
 CFLAGS += $(DPDK_CFLAGS)
-CFLAGS += -D_GNU_SOURCE  # Ensure GNU extensions are available
+### CFLAGS += -D_GNU_SOURCE  # Ensure GNU extensions are available
 
+
+
+# Debug vs Release flags
 ifeq ($(BUILD),debug)
     CFLAGS += -O0 -ggdb
 else
     CFLAGS += -O3
 endif
 
+
 # Linker flags
 LDFLAGS += $(DPDK_LDFLAGS)
 # Additional required libraries for DPDK
-LDFLAGS += -Wl,--whole-archive -ldpdk \
-           -lrt -pthread -lnuma -ldl
+## LDFLAGS += -ldpdk -lrt -pthread -lnuma -ldl
+
 
 .PHONY: all clean install
 
@@ -47,5 +49,5 @@ install: $(APP)
 	cp -f $(APP) $(DIR_ROOTFS)/$(APP)
 
 clean:
-	rm -f $(APP) *.o
+	rm -f $(APP) $(OBJS)
 
