@@ -27,15 +27,17 @@ endif
 
 # Linker flags
 LDFLAGS += $(DPDK_LDFLAGS)
-LDFLAGS += -pthread -lnuma -ldl -lrt  # Additional required libraries for DPDK
-
+# Additional required libraries for DPDK
+LDFLAGS += -Wl,--whole-archive -ldpdk \
+           -Wl,--no-whole-archive \
+           -lrt -pthread -lnuma -ldl
 
 .PHONY: all clean install
 
 all: $(APP)
 
 $(APP): $(OBJS)
-	$(CC) $^ $(LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) $(DPDK_LDFLAGS) -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
