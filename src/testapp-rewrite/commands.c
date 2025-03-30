@@ -118,7 +118,7 @@ static inline int command_body(int argc, char *argv[],
 
     res = config_initialize_socket(&conf, argc, argv);
     if (res){
-        prinitf("failed to config_initialize_socket\n");
+        printf("failed to config_initialize_socket\n");
         return EXIT_FAILURE;
     }
 
