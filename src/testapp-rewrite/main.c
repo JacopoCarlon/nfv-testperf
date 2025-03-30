@@ -3,6 +3,8 @@
 #include <string.h>
 
 #include "commands.h"
+#include <rte_cycles.h>
+#include <rte_eal.h>
 
 static inline int run_command(int argc, char *argv[]) {
     int is_dpdk = 0;
