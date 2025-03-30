@@ -8,10 +8,6 @@ static inline int run_command(int argc, char *argv[]) {
     int is_dpdk = 0;
     char* original_command = argv[0];
     int command_index = -1;
-
-    int is_dpdk = 0;
-    char* original_command = argv[0];
-    int command_index = -1;
     
     // Check if command is a DPDK variant
     if (strncmp(original_command, "dpdk-", 5) == 0) {
