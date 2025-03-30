@@ -17,12 +17,15 @@ static inline int run_command(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+    printf("calling commands_f[i] \n");
+
     return commands_f[i](argc, argv);
 }
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         // IDEA: PRINT USAGE, DOES NOTHING
+        printf("need 2 or more args\n");
         return EXIT_SUCCESS;
     }
 

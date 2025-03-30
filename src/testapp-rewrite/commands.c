@@ -117,18 +117,23 @@ static inline int command_body(int argc, char *argv[],
     argv += res;
 
     res = config_initialize_socket(&conf, argc, argv);
-    if (res)
+    if (res){
+        prinitf("failed to config_initialize_socket\n");
         return EXIT_FAILURE;
+    }
 
     // Register the termination callback
     signal(SIGINT, handle_sigint);
+    printf("doen sigint handler registration\n");
 
     // Initialize the Time Stamp Counter handle for loop usage
     tsc_init();
+    printf("doen tsc_init \n");
 
     // Initialize cores management, works only after initialization of both
     // configuration and sockets
     cores_init(&conf);
+    printf("doen cores_init \n");
 
     // Check that the user started the application with the right number of
     // cores
