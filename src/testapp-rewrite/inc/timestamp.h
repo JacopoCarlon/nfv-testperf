@@ -2,6 +2,7 @@
 #define TIMESTAMP_H
 
 #include <rte_cycles.h>
+#include <rte_eal.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +26,7 @@ static inline int tsc_init(void) { return rte_eal_timer_init(); }
 static inline int tsc_init(void) {
     printf("try to init time\n");
     return rte_eal_init(0, NULL);  // Proper DPDK initialization
+    //return 0;
 }
 
 

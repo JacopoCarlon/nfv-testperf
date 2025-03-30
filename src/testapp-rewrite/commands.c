@@ -124,16 +124,16 @@ static inline int command_body(int argc, char *argv[],
 
     // Register the termination callback
     signal(SIGINT, handle_sigint);
-    printf("doen sigint handler registration\n");
+    printf("done sigint handler registration\n");
 
     // Initialize the Time Stamp Counter handle for loop usage
     tsc_init();
-    printf("doen tsc_init \n");
+    printf("done fake tsc_init \n");
 
     // Initialize cores management, works only after initialization of both
     // configuration and sockets
     cores_init(&conf);
-    printf("doen cores_init \n");
+    printf("done cores_init \n");
 
     // Check that the user started the application with the right number of
     // cores
