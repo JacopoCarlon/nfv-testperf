@@ -25,8 +25,10 @@ static inline int tsc_init(void) { return rte_eal_timer_init(); }
 
 static inline int tsc_init(void) {
     printf("try to init time\n");
-    return rte_eal_init(0, NULL);  // Proper DPDK initialization
-    //return 0;
+    // return rte_eal_init(0, NULL);  
+
+    // this is now a dummy function, initialization is at run_command()
+    return 0;
 }
 
 
