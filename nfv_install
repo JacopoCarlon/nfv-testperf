@@ -1056,6 +1056,14 @@ function bin_install() {
     make -C "$DIR_TESTAPP" -j "$MAKECPUS" clean 
     make -C "$DIR_TESTAPP" -j "$MAKECPUS" install
 
+
+    # Build and install TESTAPP_ADVANCED
+    echo_section "MAKE INSTALL DIR_TESTAPP_ADVANCED (-j $MAKECPUS)" 
+    make -C "$DIR_TESTAPP_ADVANCED" -j "$MAKECPUS" clean 
+    make -C "$DIR_TESTAPP_ADVANCED" -j "$MAKECPUS" install
+
+
+
     # Install CPU mask utility
     echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
     make -C "$DIR_CPUMASK" -j "$MAKECPUS"
@@ -1153,6 +1161,7 @@ function main_f() {
 
     DIR_INSTALL_DATA="$DIR_SCRIPT/installdata"
     DIR_TESTAPP="$DIR_SCRIPT/src/testapp-rewrite"
+    DIR_TESTAPP_ADVANCED="$DIR_SCRIPT/src/testapp-advanced"
     DIR_CPUMASK="$DIR_SCRIPT/src/cpu_list_to_mask"
     DIR_CONFIGURATIONS="$DIR_SCRIPT/configurations"
     DIR_BIN="$DIR_SCRIPT/bin"
