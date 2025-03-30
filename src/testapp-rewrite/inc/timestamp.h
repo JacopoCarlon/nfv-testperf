@@ -17,16 +17,21 @@ extern volatile tsc_t __tsc_last;
  * DPDK EAL, which is totally unnecessary in some cases...
  * */
 // this cannot work anymore sorry 
+/*
 extern int rte_eal_timer_init(void);
 static inline int tsc_init(void) { return rte_eal_timer_init(); }
+*/
+
+static inline int tsc_init(void) {
+    printf("try to init time\n");
+    return rte_eal_init(0, NULL);  // Proper DPDK initialization
+}
+
 
 /* ------------------------- FUNCTION  DECLARATIONS ------------------------- */
 
 // Initialize EAL properly instead of calling internal timer_init
-/*static inline int tsc_init(void) {
-    printf("try to init time\n");
-    return rte_eal_init(0, NULL);  // Proper DPDK initialization
-}*/
+
 
 
 static inline tsc_t tsc_read(void) { return rte_rdtsc(); }
