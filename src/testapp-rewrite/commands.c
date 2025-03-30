@@ -98,6 +98,8 @@ static inline int command_body(int argc, char *argv[],
                                const int howmany_loops) {
     struct config conf;
 
+    printf("commands.c command_body entered\n");
+
     config_initialize(&conf, defaults);
 
     // Needs at least program name, hence res must be > 0
@@ -106,6 +108,8 @@ static inline int command_body(int argc, char *argv[],
         perror_exit("ERR: Could not parse arguments correctly!");
 
     config_print(&conf);
+
+    printf("commands.c command_body done config_print\n");
 
     // Shift arguments, certain NFV sockets may require additional arguments
     // (see DPDK one)
@@ -130,6 +134,8 @@ static inline int command_body(int argc, char *argv[],
     // cores
     core_t num_cores = check_cores(&conf, (const core_t *const) &howmany_loops);
 
+    printf("commands.c command_body checkd cores ..?\n");
+
     // Prepare the data for each worker. NOTICE: the last worker shall be
     // executed on the master core by setting this thread affinity to the
     // master core and running the function
@@ -149,6 +155,8 @@ static inline int command_body(int argc, char *argv[],
         workers_info[i] = (struct thread_info){core_id, loops[i], 0, &conf};
         ++i;
     }
+
+    printf("commands.c command_body done foreach core ..?\n");
 
     // This last loop will run on the master core
     workers_info[i] =
@@ -195,6 +203,7 @@ int recv_body(int argc, char *argv[]) {
 }
 
 int send_body(int argc, char *argv[]) {
+    printf("commands.c sendbody entered\n");
     thread_body_t loops[] = {send_loop};
     int howmany_loops = sizeof(loops) / sizeof(thread_body_t);
     return command_body(argc, argv, &defaults_send, loops, howmany_loops);
