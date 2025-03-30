@@ -158,19 +158,29 @@ int dpdk_send_body(int argc, char *argv[])
     argv += argind;
 
     int res = dpdk_init(argc, argv, &conf);
-    if (res)
+    if (res){
+        printf("--- exit dpdk_send_body : dpdk_init failed\n");
         return EXIT_FAILURE;
+    }
+    
+    printf("--- printing dpdk_send_body configuration\n");
 
     print_config(&conf);
+
+    printf("--- printing dpdk_send_body configuration\n");
 
     signal(SIGINT, handle_sigint);
 
     tsc_init();
 
+    printf("--- will enter dpdk_send_body main_loop\n");
+
     main_loop(&conf);
 
     // Should never get here actually
     // close(conf.sock_fd);
+
+    printf("--- end of dpdk_send_body()\n");
 
     return EXIT_SUCCESS;
 }
