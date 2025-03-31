@@ -301,6 +301,10 @@ function rootfs_install() {
     # TODO: a directory where to put user-config for each container
     
     # Add user during rootFS creation
+
+    echo_action "CONFIGURE LD CACHE"
+    sudo mkdir -p "$DIR_ROOTFS/etc/ld.so.conf.d"
+    echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$DIR_ROOTFS/etc/ld.so.conf.d/dpdk.conf"
     
 
     # ======================================================================
@@ -1043,9 +1047,12 @@ function old_bin_install() {
 function bin_install() {
     echo_section "Installing custom scripts and binaries"
 
-    if [ -f "$DIR_INSTALL_DATA/lxcconfrc.bash" ]; then
-        source "$DIR_INSTALL_DATA/lxcconfrc.bash" || true
-    fi
+    ##if [ -f "$DIR_INSTALL_DATA/lxcconfrc.bash" ]; then
+    ##    source "$DIR_INSTALL_DATA/lxcconfrc.bash" || true
+    ##fi
+    [ -f "$DIR_INSTALL_DATA/lxcconfrc.bash" ] && source "$DIR_INSTALL_DATA/lxcconfrc.bash" || true
+
+
 
     echo_action "INSTALL TESTAPP DEP [ROOTFS]"
     [ ! -e "$ROOTFS_CHECK_FILE" ] && rootfs_install
@@ -1069,15 +1076,15 @@ function bin_install() {
     make -C "$DIR_TESTAPP" -j "$MAKECPUS" install
 
 
-    # Install CPU mask utility
-    echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
-    make -C "$DIR_CPUMASK" -j "$MAKECPUS"
-
-
     # Copy binaries to rootfs
     echo_action "INSTALL BIN IN ROOTFS"
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
+
+    # Copy DPDK libraries
+    echo_action "DEPLOY DPDK LIBRARIES"
+    DPDK_LIB_DIR="/usr/local/lib/x86_64-linux-gnu"
+    sudo rsync -av "$DPDK_LIB_DIR/librte*" "$DIR_ROOTFS/usr/local/lib/x86_64-linux-gnu/"
 
     echo_warning "putting nfv_run_in_container into the containers! , names : $LXC_CONT_NAMES"
 
@@ -1098,6 +1105,11 @@ function bin_install() {
                 --exclude='*' \
                 "$DIR_ROOTFS/" "$container_rootfs/"
                 
+            # Sync libraries
+            sudo rsync -av \
+                "$DIR_ROOTFS/usr/local/lib/x86_64-linux-gnu/librte*" \
+                "$container_rootfs/usr/local/lib/x86_64-linux-gnu/"
+
             # Ensure correct permissions
             sudo chmod +x "$container_rootfs/nfv_run_in_container" 2>/dev/null || true
             sudo chmod +x "$container_rootfs/testpmd" 2>/dev/null || true
@@ -1107,21 +1119,19 @@ function bin_install() {
     fi
 
 
-
-
-    ##for i in "${!LXC_CONT_NAMES[@]}"; do
-    ##    echo "writing nfv_run_in_container to /var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
-    ##    sudo cp "$DIR_SCRIPT/bin/nfv_run_in_container" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
-    ##    [ -e "$DPDK_CHECK_FILE" ] && sudo cp "$(which testpmd)" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
-    ##done
-
-
     echo_warning "DIR_SCRIPT:$DIR_SCRIPT , need to copy nfv_run_in_container into DIR_ROOTFS:$DIR_ROOTFS"
+
+
+
+    # Install CPU mask utility
+    echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
+    make -C "$DIR_CPUMASK" -j "$MAKECPUS"
 
 
     # Install scripts and configs
     echo_action "INSTALL COMMANDS (SCRIPTS)"
     cp -v "$DIR_BIN"/* "$DIR_BIN_DST/" 2>/dev/null || true
+
     echo_action "INSTALL CONFIGURATIONS"
     cp -v "${DIR_CONFIGURATIONS}/"* "${DIR_CONFIGRC}"
 
@@ -1231,7 +1241,7 @@ function main_f() {
     DIR_BUILDCORE=$DIR_SRC/buildcore
     DIR_BUILDCORE_BUILD=$DIR_BUILD/buildcore
     DIR_ROOTFS=$DIR_INSTALL/rootfs          
-    ## /home/jcarlon/nfv_testperf/install/roofts/
+    ## /home/jcarlon/nfv_testperf/install/rootfs/
 
     DIR_DPDK_SRC=$DIR_SRC/dpdk-${DPDK_VERSION}
     DIR_DPDK_BUILD=$DIR_BUILD/dpdk-${DPDK_VERSION}
