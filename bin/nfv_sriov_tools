@@ -1,8 +1,13 @@
 #!/bin/bash
 
 # FIXME: change this to something environment-independent
-RTE_SDK = "/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk"
 dpdk_devbind="${RTE_SDK}/usertools/dpdk-devbind.py"
+
+# need to go on pleaseee
+## RTE_SDK = "/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk"
+dpdk_devbind="/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk/usertools/dpdk-devbind.py"
+
+
 
 # This is used to get reliably the original path of the script
 # Source: https://stackoverflow.com/a/246128/7030275
