@@ -598,6 +598,11 @@ function dpdk_install() {
     #       If no srcdir is given Meson will deduce the srcdir 
     #       based on pwd and the location of meson.build.
 
+
+    ## meson setup --wipe -Dplatform=generic -Dbuildtype=debugoptimized -Dlibdir=lib/x86_64-linux-gnu -Denable_drivers=net/intel/i40e -Denable_kmods=true -Denable_apps=l3fwd-power -Dexamples=l2fwd,l3fwd,l3fwd-power build
+
+
+
     meson setup \
         --wipe \
         -Dplatform=generic \
@@ -1057,10 +1062,10 @@ function bin_install() {
     make -C "$DIR_TESTAPP" -j "$MAKECPUS" install
 
 
-    # Build and install TESTAPP_ADVANCED
-    echo_section "MAKE INSTALL DIR_TESTAPP_ADVANCED (-j $MAKECPUS)" 
-    make -C "$DIR_TESTAPP_ADVANCED" -j "$MAKECPUS" clean 
-    make -C "$DIR_TESTAPP_ADVANCED" -j "$MAKECPUS" install
+    # Build and install TESTAPP_ADVANCED ## possibly not needed ..?
+    ## ## echo_section "MAKE INSTALL DIR_TESTAPP_ADVANCED (-j $MAKECPUS)" 
+    ## ## make -C "$DIR_TESTAPP_ADVANCED" -j "$MAKECPUS" clean 
+    ## ## make -C "$DIR_TESTAPP_ADVANCED" -j "$MAKECPUS" install
 
 
 
@@ -1161,7 +1166,7 @@ function main_f() {
 
     DIR_INSTALL_DATA="$DIR_SCRIPT/installdata"
     DIR_TESTAPP="$DIR_SCRIPT/src/testapp-rewrite"
-    DIR_TESTAPP_ADVANCED="$DIR_SCRIPT/src/testapp-advanced"
+    ##DIR_TESTAPP_ADVANCED="$DIR_SCRIPT/src/testapp-advanced"
     DIR_CPUMASK="$DIR_SCRIPT/src/cpu_list_to_mask"
     DIR_CONFIGURATIONS="$DIR_SCRIPT/configurations"
     DIR_BIN="$DIR_SCRIPT/bin"

@@ -98,8 +98,8 @@ NFV_DPDK_SIGNATURE(void, init, config_ptr conf) {
     sself->packets = malloc(sizeof(rte_buffer_t) * self->burst_size);
 
     // Setup packet headers
-    pkt_hdr_setup(&sself->incoming_hdr, conf, DIR_INCOMING);
-    pkt_hdr_setup(&sself->outgoing_hdr, conf, DIR_OUTGOING);
+    pkt_hdr_setup(&sself->outgoing_hdr, conf, DIR_OUTGOING);  // Outgoing: src=local, dst=remote
+    pkt_hdr_setup(&sself->incoming_hdr, conf, DIR_INCOMING);  // Incoming: src=remote, dst=local
 }
 
 NFV_DPDK_SIGNATURE(size_t, request_out_buffers, buffer_t buffers[],

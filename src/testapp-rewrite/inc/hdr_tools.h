@@ -22,8 +22,8 @@ enum hdr_direction {
     DIR_OUTGOING = 1,
 };
 
-static inline void pkt_hdr_setup(struct pkt_hdr *hdr, struct config *conf,
-                                 enum hdr_direction dir) {
+static inline void pkt_hdr_setup(struct pkt_hdr *hdr, struct config *conf, enum hdr_direction dir) {
+
     uint16_t pkt_len;
     uint16_t payload_len = conf->payload_size;
 
@@ -33,10 +33,14 @@ static inline void pkt_hdr_setup(struct pkt_hdr *hdr, struct config *conf,
     // Initialize ETH header (assumes outgoing packets)
     // FIXME: to print ethernet addresses use rte_ether_format_addr, to read
     // them from a string use rte_ether_unformat_addr
-    rte_ether_addr_copy((struct rte_ether_addr *)src->mac.sll_addr,
-                        &hdr->ether.dst_addr);
-    rte_ether_addr_copy((struct rte_ether_addr *)dst->mac.sll_addr,
-                        &hdr->ether.dst_addr);
+
+    // CHANGED : 
+    // BUG: Both are dst_addr ..?
+    // rte_ether_addr_copy((struct rte_ether_addr *)src->mac.sll_addr, &hdr->ether.dst_addr);
+    // rte_ether_addr_copy((struct rte_ether_addr *)dst->mac.sll_addr, &hdr->ether.dst_addr);
+    // For outgoing packets:
+    rte_ether_addr_copy((struct rte_ether_addr *)src->mac.sll_addr, &hdr->ether.src_addr);
+    rte_ether_addr_copy((struct rte_ether_addr *)dst->mac.sll_addr, &hdr->ether.dst_addr);
     hdr->ether.ether_type = rte_cpu_to_be_16(RTE_ETHER_TYPE_IPV4);
 
     // Initialize IP header
@@ -48,8 +52,12 @@ static inline void pkt_hdr_setup(struct pkt_hdr *hdr, struct config *conf,
     hdr->ip.next_proto_id = IPPROTO_UDP;
     hdr->ip.packet_id = 0;
     hdr->ip.total_length = rte_cpu_to_be_16(pkt_len);
-    hdr->ip.src_addr = rte_cpu_to_be_32(src->ip.sin_addr.s_addr);
-    hdr->ip.dst_addr = rte_cpu_to_be_32(dst->ip.sin_addr.s_addr);
+
+    // CHANGED : 
+    // hdr->ip.src_addr = rte_cpu_to_be_32(src->ip.sin_addr.s_addr);
+    // hdr->ip.dst_addr = rte_cpu_to_be_32(dst->ip.sin_addr.s_addr);
+    hdr->ip.src_addr = src->ip.sin_addr.s_addr; 
+    hdr->ip.dst_addr = dst->ip.sin_addr.s_addr;
 
     // Compute IP header checksum
     hdr->ip.hdr_checksum = 0;
@@ -57,8 +65,13 @@ static inline void pkt_hdr_setup(struct pkt_hdr *hdr, struct config *conf,
 
     // Initialize UDP header
     pkt_len = (uint16_t)(payload_len + sizeof(struct rte_udp_hdr));
-    hdr->udp.src_port = rte_cpu_to_be_16(src->ip.sin_port);
-    hdr->udp.dst_port = rte_cpu_to_be_16(dst->ip.sin_port);
+
+    // CHANGED : 
+    // hdr->udp.src_port = rte_cpu_to_be_16(src->ip.sin_port);
+    // hdr->udp.dst_port = rte_cpu_to_be_16(dst->ip.sin_port);
+    hdr->udp.src_port = src->ip.sin_port;
+    hdr->udp.dst_port = dst->ip.sin_port;
+
     hdr->udp.dgram_len = rte_cpu_to_be_16(pkt_len);
     hdr->udp.dgram_cksum = 0; /* No UDP checksum. */
 }

@@ -13,6 +13,7 @@
 #include "payload_util.h"
 #include "stats.h"
 #include "timestamp.h"
+#include "constants.h"
 
 typedef struct nfv_socket *nfv_socket_ptr;
 
@@ -128,7 +129,9 @@ static inline ssize_t prepare_send_burst(struct config *conf,
         }
 
         tsc_cur = tsc_get_last();
-        put_i64_offset(buffers[i], 0, tsc_cur);
+        // CHANGED : 
+        // put_i64_offset(buffers[i], 0, tsc_cur);
+        put_i64_offset(buffers[i], OFFSET_PKT_PAYLOAD, tsc_cur); 
     }
 
     return nfv_socket_send(socket, howmany);
@@ -389,7 +392,9 @@ int client_loop(void *arg) {
         num_recv = recv_consume_burst(conf, socket, buffers, conf->bst_size);
 
         for (ssize_t i = 0; i < num_recv; ++i) {
-            tsc_pkt = get_i64_offset(buffers[i], 0);
+            // CHANGED : 
+            // tsc_pkt = get_i64_offset(buffers[i], 0);
+            tsc_pkt = get_i64_offset(buffers[i], OFFSET_PKT_PAYLOAD); 
             if (should_read_tsc)
                 tsc_cur = tsc_read();
             else

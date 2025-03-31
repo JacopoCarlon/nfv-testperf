@@ -31,13 +31,24 @@ extern "C" {
 #define CLIENT_PORT 16803
 
 /* TODO: move addresses somewhere else */
-#define SEND_ADDR_IP "127.0.0.1"
-#define RECV_ADDR_IP "127.0.0.1"
+// #define SEND_ADDR_IP "127.0.0.1"
+// #define RECV_ADDR_IP "127.0.0.1"
+// #define SEND_ADDR_MAC "02:00:00:00:00:02"
+// #define RECV_ADDR_MAC "02:00:00:00:00:01"
+
+// Server B (Sender) - enp4s0f0 (MAC: 68:05:ca:95:fa:64)
+#define SEND_ADDR_IP "1.1.1.100"
+#define SEND_ADDR_MAC "68:05:ca:95:fa:64"
+
+// Server A (Receiver/Forwarder) - enp4s0f0 (MAC: 68:05:ca:95:f8:ec)
+#define RECV_ADDR_IP "2.1.1.1"
+#define RECV_ADDR_MAC "68:05:ca:95:f8:ec"
+
+
 #define SERVER_ADDR_IP "127.0.0.1"
 #define CLIENT_ADDR_IP "127.0.0.1"
 
-#define SEND_ADDR_MAC "02:00:00:00:00:02"
-#define RECV_ADDR_MAC "02:00:00:00:00:01"
+
 #define SERVER_ADDR_MAC "02:00:00:00:00:02"
 #define CLIENT_ADDR_MAC "02:00:00:00:00:01"
 

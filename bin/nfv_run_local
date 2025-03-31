@@ -366,7 +366,7 @@ function log_vswitch_option() {
 # TODO: make generic when moving to multi-computer commands
 # TODO: add virtual switch log in debug
 function start_vswitch() {
-    echo "Attempting to start the vswitch..."
+    echo "Attempting to start the vswitch... case : $vswitch ..."
     case $vswitch in
     pmd)
         pmd_cmd="sudo $PMD -l $SWITCH_CPUS -n 2 --socket-mem 1024,0 --file-prefix=host"
