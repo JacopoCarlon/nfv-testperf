@@ -289,6 +289,8 @@ function rootfs_install() {
     ## rootfs should not be root bound
     mkdir -p "$DIR_ROOTFS"
 
+    ## !! TODO : decide if sudo or not
+
     # Create essential directories
     sudo mkdir -p "$DIR_ROOTFS/sbin"
     sudo mkdir -p "$DIR_ROOTFS/lib/x86_64-linux-gnu"
