@@ -1081,10 +1081,26 @@ function bin_install() {
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
 
+
+
+
     # Copy DPDK libraries
     echo_action "DEPLOY DPDK LIBRARIES"
     DPDK_LIB_DIR="/usr/local/lib/x86_64-linux-gnu"
-    sudo rsync -av "$DPDK_LIB_DIR/librte*" "$DIR_ROOTFS/usr/local/lib/x86_64-linux-gnu/"
+    TARGET_LIB_DIR="$DIR_ROOTFS/usr/local/lib/x86_64-linux-gnu"
+
+    # Create directory structure
+    sudo mkdir -p "$TARGET_LIB_DIR"
+
+    # Verify source libraries
+    if [ ! -d "$DPDK_LIB_DIR" ] || [ -z "$(ls -A $DPDK_LIB_DIR/librte* 2>/dev/null)" ]; then
+        echo_error "Missing DPDK libraries in $DPDK_LIB_DIR"
+        echo_error "Reinstall DPDK and try again"
+        exit 1
+    fi
+
+    # Copy libraries with full path preservation
+    sudo rsync -avR "$DPDK_LIB_DIR/./librte"* "$DIR_ROOTFS"
 
     echo_warning "putting nfv_run_in_container into the containers! , names : $LXC_CONT_NAMES"
 
@@ -1106,9 +1122,8 @@ function bin_install() {
                 "$DIR_ROOTFS/" "$container_rootfs/"
                 
             # Sync libraries
-            sudo rsync -av \
-                "$DIR_ROOTFS/usr/local/lib/x86_64-linux-gnu/librte*" \
-                "$container_rootfs/usr/local/lib/x86_64-linux-gnu/"
+            sudo mkdir -p "$container_rootfs/usr/local/lib/x86_64-linux-gnu"
+            sudo rsync -av "$DPDK_LIB_DIR/librte"* "$container_rootfs/usr/local/lib/x86_64-linux-gnu/"
 
             # Ensure correct permissions
             sudo chmod +x "$container_rootfs/nfv_run_in_container" 2>/dev/null || true
