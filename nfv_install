@@ -311,6 +311,7 @@ function rootfs_install() {
 
 
 
+    echo_action "CREATING ESSENTIAL DEVICE NODES"
     # Create essential dirs 
     sudo mkdir -p "$DIR_ROOTFS/dev"
     sudo mkdir -p "$DIR_ROOTFS/proc"
@@ -318,14 +319,28 @@ function rootfs_install() {
     sudo mkdir -p "$DIR_ROOTFS/tmp"
 
     # Create device nodes
-    echo_action "CREATING ESSENTIAL DEVICE NODES"
+    sudo mkdir 
     sudo mknod -m 666 "$DIR_ROOTFS/dev/null" c 1 3
     sudo mknod -m 666 "$DIR_ROOTFS/dev/zero" c 1 5
     sudo mknod -m 666 "$DIR_ROOTFS/dev/urandom" c 1 9
+    sudo mknod -m 666 "$DIR_ROOTFS/dev/tty" c 5 0
+
+    # Mount points
+    sudo mkdir -p "$DIR_ROOTFS/dev/pts"
+    sudo mkdir -p "$DIR_ROOTFS/dev/shm"
 
     # Directory structure
     sudo mkdir -p "$DIR_ROOTFS/var/run/VIO"
     sudo mkdir -p "$DIR_ROOTFS/var/run/hugepages"
+
+
+    Copy
+    # After device nodes
+    echo_action "ADDING CORE UTILITIES"
+    # From host to rootfs
+    sudo cp /bin/busybox "$DIR_ROOTFS/bin/"
+    sudo cp /usr/bin/passwd "$DIR_ROOTFS/usr/bin/"
+    sudo cp /lib/x86_64-linux-gnu/libcrypt.so.1 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
 
 
     # Add library cache configuration
@@ -429,6 +444,13 @@ function lxc_create_container() {
 function lxc_install() {
     echo_section "Creating LXC Containers"
 
+
+
+
+    ## !!! TODO TO DO 
+    ## before starting container, we need to bind !!!
+    ## jcarlon@treebeard:~/zzz_test/dpdk/kernel/linux/igb_uio$ sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
+
     ## needs : sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
 
 
@@ -449,6 +471,14 @@ function lxc_install() {
 
     # Now we have some configuration variables that we can iterate to create LXC
     # containers beforehand, to use them later during tests
+
+    # Clear existing containers first
+    echo_action "CLEANING EXISTING CONTAINERS"
+    for i in "${!LXC_CONT_NAMES[@]}"; do
+        sudo lxc-stop -n "${LXC_CONT_NAMES[i]}" >/dev/null 2>&1 || true
+        sudo lxc-destroy -n "${LXC_CONT_NAMES[i]}" >/dev/null 2>&1 || true
+    done
+
 
     # First clear a few configuration files
     truncate -s 0 "$CONF_SRIOV_DEVLIST"
@@ -491,8 +521,7 @@ EOF
         # of the current container
         # FIXME: check whether a dynamic CONF_SRIOV_TESTPMD file is necessary
         echo "${LXC_CONT_VFPCIS[i]}" >>"$CONF_SRIOV_DEVLIST"
-        echo "set vf mac addr 0 $i ${LXC_CONT_VFPCIS[i]}" \
-            >>"$CONF_SRIOV_TESTPMD"
+        echo "set vf mac addr 0 $i ${LXC_CONT_VFPCIS[i]}" >>"$CONF_SRIOV_TESTPMD"
     done
 
     echo_section "--- before magic : wait 5s "
@@ -513,30 +542,39 @@ EOF
 
     echo "after magic, move rootfs to containers before start"
 
+
+
+    ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
+
+    #### sudo cp works , but rsync might be better tbh
+    ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
     for i in "${!LXC_CONT_NAMES[@]}"; do
-        ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
-        echo "for targeting ${LXC_CONT_NAMES[i]} and manually putting rootfs there"
-        #### sudo cp works , but rsync might be better tbh
-        ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
-        sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+        echo "Deploying rootfs to ${LXC_CONT_NAMES[i]}"
+        container_rootfs="/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
+        sudo mkdir -p "$container_rootfs"
+        sudo rsync -a --delete "$DIR_ROOTFS/" "$container_rootfs/"
     done
-    ##for i in "${!LXC_CONT_NAMES[@]}"; do
-    ##    sudo lxc-config ${LXC_CONT_NAMES[i]} set rootfs.path $DIR_ROOTFS
-    ##done
-
-    echo_warning "lxc_install : rootfs should be in containers"
 
 
-    ## !!! TODO TO DO 
-    ## before starting container, we need to bind !!!
-    ## jcarlon@treebeard:~/zzz_test/dpdk/kernel/linux/igb_uio$ sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
+
+
+    # Container validation and startup
+    for container in "${LXC_CONT_NAMES[@]}"; do
+        echo_action "STARTING CONTAINER $container"
+        sudo lxc-start -n "$container"
+        sleep 2  # Allow initialization
+
+        # Verify critical components
+        if ! sudo lxc-attach -n "$container" -- ls /dev/null >/dev/null; then
+            echo_error "Container $container missing critical device nodes!"
+            exit 1
+        fi
+    done
 
 
     # When all containers are created, change 'myself' user password to no password
     # The command is repeated because usually the first time fails.
     # If the last attempt fails, the installation fails
-    sudo lxc-start -n "${LXC_CONT_NAMES[0]}"
-
 
     # ==============================================================
     #useradd is no longer needed, since i create the user in rootfs
@@ -546,20 +584,31 @@ EOF
 
 
     echo_warning "--- doing pwd stuff"
-    (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
-    (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
-    (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself)
+
+    # User configuration (without using passwd)
+    echo_action "FINALIZING USER CONFIG"
+    for container in "${LXC_CONT_NAMES[@]}"; do
+        echo "Configuring $container:"
+        # Directly modify shadow file instead of using passwd
+        sudo sed -i 's/^myself:.*/myself::1000:1000::\/home\/myself:\/bin\/sh/' \
+            "/var/lib/lxc/$container/rootfs/etc/passwd"
+    done
+
+
+    ##  (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
+    ##  (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself) || true
+    ##  (sudo lxc-attach -n "${LXC_CONT_NAMES[0]}" -- passwd -d myself)
 
     echo_warning "--- done pwd stuff, will stop containers now"
-    sudo lxc-stop -n "${LXC_CONT_NAMES[0]}"
-
-
+    ## sudo lxc-stop -n "${LXC_CONT_NAMES[0]}"
 
     echo_section "--- after magic magic end"
 
-    echo "the end ????"
+    ## echo "the end ????"
 
+    echo_section "LXC INSTALLATION COMPLETE"
 }
+
 
 function lxc_remove() {
     echo_section "Destroying LXC Containers"
