@@ -310,6 +310,14 @@ function rootfs_install() {
     sed -e 's/^ttyS0/#&/g' -i "$DIR_ROOTFS/etc/inittab"
 
 
+    # Create full Unix directory structure
+    echo_action "CREATING UNIX DIRECTORY STRUCTURE"
+    sudo mkdir -p "$DIR_ROOTFS/usr"
+    sudo mkdir -p "$DIR_ROOTFS/usr/bin"
+    sudo mkdir -p "$DIR_ROOTFS/usr/sbin"
+    sudo mkdir -p "$DIR_ROOTFS/usr/lib"
+    sudo mkdir -p "$DIR_ROOTFS/var/log"
+    sudo mkdir -p "$DIR_ROOTFS/run"
 
     echo_action "CREATING ESSENTIAL DEVICE NODES"
     # Create essential dirs 
@@ -336,9 +344,12 @@ function rootfs_install() {
     # After device nodes
     echo_action "ADDING CORE UTILITIES"
     # From host to rootfs
-    sudo cp /bin/busybox "$DIR_ROOTFS/bin/"
-    sudo cp /usr/bin/passwd "$DIR_ROOTFS/usr/bin/"
-    sudo cp /lib/x86_64-linux-gnu/libcrypt.so.1 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    sudo cp -v /bin/busybox "$DIR_ROOTFS/bin/"
+
+
+    # Essential binaries
+    sudo cp -v /sbin/ldconfig "$DIR_ROOTFS/sbin/"
+    sudo cp -v /usr/bin/passwd "$DIR_ROOTFS/usr/bin/"
 
 
     # Add library cache configuration
@@ -347,6 +358,10 @@ function rootfs_install() {
     sudo mkdir -p "$DIR_ROOTFS/etc/ld.so.conf.d"
     echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$DIR_ROOTFS/etc/ld.so.conf.d/dpdk.conf"
     echo "/lib/x86_64-linux-gnu" | sudo tee -a "$DIR_ROOTFS/etc/ld.so.conf.d/basic.conf"
+
+    sudo cp -v /lib/x86_64-linux-gnu/libcrypt.so.1 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    sudo cp -v /lib/x86_64-linux-gnu/libc.so.6 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    sudo cp -v /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
 
 
     # TODO: a directory where to put user-config for each container
@@ -441,9 +456,6 @@ function lxc_create_container() {
 
 function lxc_install() {
     echo_section "Creating LXC Containers"
-
-
-
 
     ## !!! TODO TO DO 
     ## before starting container, we need to bind !!!
@@ -550,7 +562,12 @@ EOF
         echo "Deploying rootfs to ${LXC_CONT_NAMES[i]}"
         container_rootfs="/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
         sudo mkdir -p "$container_rootfs"
-        sudo rsync -a --delete "$DIR_ROOTFS/" "$container_rootfs/"
+
+        sudo rsync -a --delete \
+            --include='/usr/bin' \
+            --include='/usr/lib' \
+            --include='/sbin' \
+            "$DIR_ROOTFS/" "$container_rootfs/"
     done
 
 
@@ -584,11 +601,11 @@ EOF
     echo_warning "--- doing pwd stuff"
 
     # User configuration (without using passwd)
+    # Directly modify shadow file instead of using passwd
     echo_action "FINALIZING USER CONFIG"
     for container in "${LXC_CONT_NAMES[@]}"; do
         echo "Configuring $container:"
-        # Directly modify shadow file instead of using passwd
-        sudo sed -i 's/^myself:.*/myself::1000:1000::\/home\/myself:\/bin\/sh/' \
+        echo "myself::1000:1000::/home/myself:/bin/sh" | sudo tee \
             "/var/lib/lxc/$container/rootfs/etc/passwd"
     done
 
