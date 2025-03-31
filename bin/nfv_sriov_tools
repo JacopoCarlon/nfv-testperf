@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # FIXME: change this to something environment-independent
-dpdk_devbind="${RTE_SDK}/usertools/dpdk-devbind.py"
+##dpdk_devbind="${RTE_SDK}/usertools/dpdk-devbind.py"
 
 # need to go on pleaseee
 ## RTE_SDK = "/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk"
-## dpdk_devbind="/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk/usertools/dpdk-devbind.py"
+dpdk_devbind="/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk/usertools/dpdk-devbind.py"
 
 
 
