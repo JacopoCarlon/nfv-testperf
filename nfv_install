@@ -474,16 +474,16 @@ EOF
 
     echo "after magic, move rootfs to containers before start"
 
-    ##  for i in "${!LXC_CONT_NAMES[@]}"; do
-    ##      ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
-    ##      echo "for targeting ${LXC_CONT_NAMES[i]} and manually putting rootfs there"
-    ##      #### sudo cp works , but rsync might be better tbh
-    ##      ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
-    ##      sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
-    ##  done
     for i in "${!LXC_CONT_NAMES[@]}"; do
-        sudo lxc-config ${LXC_CONT_NAMES[i]} set rootfs.path $DIR_ROOTFS
+        ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
+        echo "for targeting ${LXC_CONT_NAMES[i]} and manually putting rootfs there"
+        #### sudo cp works , but rsync might be better tbh
+        ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
+        sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
     done
+    ##for i in "${!LXC_CONT_NAMES[@]}"; do
+    ##    sudo lxc-config ${LXC_CONT_NAMES[i]} set rootfs.path $DIR_ROOTFS
+    ##done
 
     echo_warning "lxc_install : rootfs should be in containers"
 
@@ -1084,6 +1084,17 @@ function bin_install() {
     echo_action "INSTALL BIN IN ROOTFS"
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
+
+    echo_warning "putting nfv_run_in_container into the containers! "
+
+    for i in "${!LXC_CONT_NAMES[@]}"; do
+        echo "writing nfv_run_in_container to /var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+        cp "$DIR_SCRIPT/bin/nfv_run_in_container" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+        [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+
+        sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+    done
+
 
     echo_warning "DIR_SCRIPT:$DIR_SCRIPT , need to copy nfv_run_in_container into DIR_ROOTFS:$DIR_ROOTFS"
 
