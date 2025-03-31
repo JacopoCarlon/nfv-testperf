@@ -348,8 +348,12 @@ function rootfs_install() {
 
 
     # Essential binaries
-    sudo cp -v /sbin/ldconfig "$DIR_ROOTFS/sbin/"
     sudo cp -v /usr/bin/passwd "$DIR_ROOTFS/usr/bin/"
+
+    sudo cp -av /sbin/ldconfig "$DIR_ROOTFS/sbin/"
+    sudo cp -av /sbin/ldconfig.real "$DIR_ROOTFS/sbin/"
+    sudo chmod 755 "$DIR_ROOTFS/sbin/ldconfig"
+    sudo chmod 755 "$DIR_ROOTFS/sbin/ldconfig.real"
 
 
     # Add library cache configuration
@@ -567,6 +571,9 @@ EOF
             --include='/usr/bin' \
             --include='/usr/lib' \
             --include='/sbin' \
+            --include='/sbin/ldconfig' \
+            --include='/sbin/ldconfig.real' \
+            --include='/lib/x86_64-linux-gnu' \
             "$DIR_ROOTFS/" "$container_rootfs/"
     done
 
