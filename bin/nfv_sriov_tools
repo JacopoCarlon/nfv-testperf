@@ -121,6 +121,7 @@ EOF
 
 # arg: driver to which devices should be bound
 bind() {
+    echo " --- starting bind() function ; dpdk_devbind = $dpdk_devbind !!! "
     unbind_pf
     bind_pf i40e
     reset_vfs_i40e ${#LXC_CONT_NAMES[@]}

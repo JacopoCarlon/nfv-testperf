@@ -560,6 +560,8 @@ function dpdk_export_vars() {
     export RTE_SDK="$DIR_DPDK_SRC"                          # Path to DPDK source
     export RTE_TARGET=build                                 # Meson build directory
     export TESTPMD="$DIR_DPDK_SRC/build/app/dpdk-testpmd"   ## TSTPMD just in case
+
+
 }
 
 function dpdk_install() {
@@ -1171,7 +1173,7 @@ function main_f() {
     DIR_CONFIGURATIONS="$DIR_SCRIPT/configurations"
     DIR_BIN="$DIR_SCRIPT/bin"
 
-    DIR_BASE="$HOME/nfv_testperf"
+    DIR_BASE="$HOME/nfv_testperf"       ## /home/jcarlon/nfv_testperf/
 
     if [ $default != y ]; then
         DIR_BASE=$(
@@ -1179,10 +1181,10 @@ function main_f() {
                 "$DIR_BASE"
         )
     fi
-    DIR_BASE=$(realpath "$DIR_BASE")
-    DIR_SRC=$DIR_BASE/src
-    DIR_BUILD=$DIR_BASE/build
-    DIR_INSTALL=$DIR_BASE/install
+    DIR_BASE=$(realpath "$DIR_BASE")    ## /home/jcarlon/nfv_testperf/
+    DIR_SRC=$DIR_BASE/src               ## /home/jcarlon/nfv_testperf/src
+    DIR_BUILD=$DIR_BASE/build           ## /home/jcarlon/nfv_testperf/build
+    DIR_INSTALL=$DIR_BASE/install       ## /home/jcarlon/nfv_testperf/install
     DIR_BIN_DST=$DIR_BASE/bin
     DIR_CONFIG=$DIR_BASE/conf
     DIR_CONFIGRC=$DIR_CONFIG/rc
@@ -1190,7 +1192,8 @@ function main_f() {
 
     DIR_BUILDCORE=$DIR_SRC/buildcore
     DIR_BUILDCORE_BUILD=$DIR_BUILD/buildcore
-    DIR_ROOTFS=$DIR_INSTALL/rootfs          ## /home/jcarlon/nfv_testperf/install/roofts/
+    DIR_ROOTFS=$DIR_INSTALL/rootfs          
+    ## /home/jcarlon/nfv_testperf/install/roofts/
 
     DIR_DPDK_SRC=$DIR_SRC/dpdk-${DPDK_VERSION}
     DIR_DPDK_BUILD=$DIR_BUILD/dpdk-${DPDK_VERSION}
@@ -1200,7 +1203,9 @@ function main_f() {
     DIR_SNABB_SRC=$DIR_SRC/snabb
 
     ROOTFS_CHECK_FILE=$DIR_INSTALL/.rootfs-installed
-    DPDK_CHECK_FILE=$DIR_INSTALL/.dpdk-${DPDK_VERSION}-installed
+    DPDK_CHECK_FILE=$DIR_INSTALL/.dpdk-${DPDK_VERSION}-installed 
+    #/home/jcarlon/nfv_testperf/install/.dpdk-25.03-installed
+
     OVS_CHECK_FILE=$DIR_INSTALL/.ovs-${OVS_VERSION}-installed
     SNABB_CHECK_FILE=$DIR_INSTALL/.snabb-installed
 
