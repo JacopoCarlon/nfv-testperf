@@ -1085,12 +1085,12 @@ function bin_install() {
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
 
-    echo_warning "putting nfv_run_in_container into the containers! "
+    echo_warning "putting nfv_run_in_container into the containers! , names : $LXC_CONT_NAMES"
 
     for i in "${!LXC_CONT_NAMES[@]}"; do
         echo "writing nfv_run_in_container to /var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
-        cp "$DIR_SCRIPT/bin/nfv_run_in_container" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
-        [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+        sudo cp "$DIR_SCRIPT/bin/nfv_run_in_container" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+        [ -e "$DPDK_CHECK_FILE" ] && sudo cp "$(which testpmd)" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
 
         sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
     done
