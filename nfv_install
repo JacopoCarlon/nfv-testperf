@@ -1074,9 +1074,21 @@ function bin_install() {
 
 
     # Build and install testapp
+    ### DIR_TESTAPP : ....src/testapp-rewrite !!!
     echo_section "MAKE INSTALL TESTAPP (-j $MAKECPUS)" 
     make -C "$DIR_TESTAPP" -j "$MAKECPUS" clean 
     make -C "$DIR_TESTAPP" -j "$MAKECPUS" install
+
+    # Verify built binary name as <testapp> only
+    if [ -f "$DIR_TESTAPP/testapp-rewrite" ]; then
+        echo_action "RENAME TO GENERIC TESTAPP NAME"
+        mv -v "$DIR_TESTAPP/testapp-rewrite" "$DIR_TESTAPP/testapp"
+    fi
+
+    # Copy to rootfs with consistent name
+    echo_action "INSTALL TESTAPP BINARY"
+    cp -v "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
+
 
 
     # Copy binaries to rootfs
@@ -1121,6 +1133,7 @@ function bin_install() {
             sudo rsync -av --delete \
                 --include='nfv_run_in_container' \
                 --include='testpmd' \
+                --include='testapp' \
                 --exclude='*' \
                 "$DIR_ROOTFS/" "$container_rootfs/"
                 
@@ -1131,6 +1144,7 @@ function bin_install() {
             # Ensure correct permissions
             sudo chmod +x "$container_rootfs/nfv_run_in_container" 2>/dev/null || true
             sudo chmod +x "$container_rootfs/testpmd" 2>/dev/null || true
+            sudo chmod +x "$container_rootfs/testapp" 2>/dev/null || true
         done
     else
         echo_warning "No containers defined in lxcconfrc.bash - skipping container deployment"
