@@ -310,6 +310,13 @@ function rootfs_install() {
     sed -e 's/^ttyS0/#&/g' -i "$DIR_ROOTFS/etc/inittab"
 
 
+
+    # Create essential dirs 
+    sudo mkdir -p "$DIR_ROOTFS/dev"
+    sudo mkdir -p "$DIR_ROOTFS/proc"
+    sudo mkdir -p "$DIR_ROOTFS/sys"
+    sudo mkdir -p "$DIR_ROOTFS/tmp"
+
     # Create device nodes
     echo_action "CREATING ESSENTIAL DEVICE NODES"
     sudo mknod -m 666 "$DIR_ROOTFS/dev/null" c 1 3
