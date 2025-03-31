@@ -286,25 +286,50 @@ function rootfs_install() {
     ### cp -a "$DIR_BUILDCORE_BUILD/bb_build-1.29.3/_install" "$DIR_ROOTFS"
     cp -a "$DIR_BUILDCORE_BUILD/bb_build-1.36.1/_install" "$DIR_ROOTFS"
 
+
+    # Create essential directories
+    sudo mkdir -p "$DIR_ROOTFS/sbin"
+    sudo mkdir -p "$DIR_ROOTFS/lib/x86_64-linux-gnu"
+
+    # Copy critical system binaries
+    echo_action "INSTALLING ESSENTIAL SYSTEM BINARIES"
+    sudo cp /sbin/ldconfig "$DIR_ROOTFS/sbin/"
+    sudo cp /lib/x86_64-linux-gnu/libc.so.6 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    sudo cp /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+
+
     # Copy libnuma library into container filesystem
     cp /usr/lib/x86_64-linux-gnu/libnuma.so.1 "$DIR_ROOTFS/lib"
+
+
+    sudo chmod +x "$DIR_ROOTFS/sbin/ldconfig"
+
 
     # VERY IMPORTANT: Remove ttyS0 from inittab file, otherwise you get rogue
     # GETTY processes consuming 100% CPU after the container is shut down
     sed -e 's/^ttyS0/#&/g' -i "$DIR_ROOTFS/etc/inittab"
 
-    # Create some necessary directories
-    sudo mkdir -p "$DIR_ROOTFS/rootfs/var/run"
-    sudo mkdir -p "$DIR_ROOTFS/rootfs/var/run/VIO"
-    sudo mkdir -p "$DIR_ROOTFS/rootfs/var/run/hugepages"
 
-    # TODO: a directory where to put user-config for each container
-    
+    # Create device nodes
+    echo_action "CREATING ESSENTIAL DEVICE NODES"
+    sudo mknod -m 666 "$DIR_ROOTFS/dev/null" c 1 3
+    sudo mknod -m 666 "$DIR_ROOTFS/dev/zero" c 1 5
+    sudo mknod -m 666 "$DIR_ROOTFS/dev/urandom" c 1 9
+
+    # Directory structure
+    sudo mkdir -p "$DIR_ROOTFS/var/run/VIO"
+    sudo mkdir -p "$DIR_ROOTFS/var/run/hugepages"
+
+
+    # Add library cache configuration
     # Add user during rootFS creation
-
-    echo_action "CONFIGURE LD CACHE, to DIR_ROOTFS : $DIR_ROOTFS ."
+    echo_action "CONFIGURING LIBRARY PATHS"
     sudo mkdir -p "$DIR_ROOTFS/etc/ld.so.conf.d"
     echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$DIR_ROOTFS/etc/ld.so.conf.d/dpdk.conf"
+    echo "/lib/x86_64-linux-gnu" | sudo tee -a "$DIR_ROOTFS/etc/ld.so.conf.d/basic.conf"
+
+
+    # TODO: a directory where to put user-config for each container
     
 
     # ======================================================================
@@ -1136,7 +1161,7 @@ function bin_install() {
 
     # Copy libraries with full path preservation
     sudo rsync -avR "$DPDK_LIB_DIR/./librte"* "$DIR_ROOTFS"
-    
+
 
     echo_warning "putting nfv_run_in_container into the containers! , names : $LXC_CONT_NAMES"
 
