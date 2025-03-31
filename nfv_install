@@ -1141,6 +1141,20 @@ function bin_install() {
     # Install CPU mask utility
     echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
     make -C "$DIR_CPUMASK" -j "$MAKECPUS"
+    
+    # Copy to rootfs
+    sudo cp -v "$DIR_CPUMASK/cpu_list_to_mask" "$DIR_ROOTFS/usr/bin/"
+
+    # Deploy to containers
+    if [ -n "${LXC_CONT_NAMES[*]}" ]; then
+        for container in "${LXC_CONT_NAMES[@]}"; do
+            container_rootfs="/var/lib/lxc/$container/rootfs"
+            sudo rsync -av \
+                "$DIR_ROOTFS/usr/bin/cpu_list_to_mask" \
+                "$container_rootfs/usr/bin/"
+            sudo chmod +x "$container_rootfs/usr/bin/cpu_list_to_mask"
+        done
+    fi
 
 
     # Install scripts and configs
