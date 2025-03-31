@@ -473,15 +473,18 @@ EOF
     mkdir -p /tmp/VIO
 
     echo "after magic, move rootfs to containers before start"
-    for i in "${!LXC_CONT_NAMES[@]}"; do
-        ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
-        echo "for targeting ${LXC_CONT_NAMES[i]} and manually putting rootfs there"
-        #### sudo cp works , but rsync might be better tbh
-        ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
-        sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
-    done
 
-    echo "rootfs should be in containers"
+    ##  for i in "${!LXC_CONT_NAMES[@]}"; do
+    ##      ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
+    ##      echo "for targeting ${LXC_CONT_NAMES[i]} and manually putting rootfs there"
+    ##      #### sudo cp works , but rsync might be better tbh
+    ##      ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
+    ##      sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
+    ##  done
+
+    sudo lxc-config -n ${LXC_CONT_NAMES[i]} set rootfs.path $DIR_ROOTFS
+
+    echo_warning "lxc_install : rootfs should be in containers"
 
     # When all containers are created, change 'myself' user password to no password
     # The command is repeated because usually the first time fails.
