@@ -302,7 +302,7 @@ function rootfs_install() {
     
     # Add user during rootFS creation
 
-    echo_action "CONFIGURE LD CACHE"
+    echo_action "CONFIGURE LD CACHE, to DIR_ROOTFS : $DIR_ROOTFS ."
     sudo mkdir -p "$DIR_ROOTFS/etc/ld.so.conf.d"
     echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$DIR_ROOTFS/etc/ld.so.conf.d/dpdk.conf"
     
@@ -493,6 +493,12 @@ EOF
     ##done
 
     echo_warning "lxc_install : rootfs should be in containers"
+
+
+    ## !!! TODO TO DO 
+    ## before starting container, we need to bind !!!
+    ## jcarlon@treebeard:~/zzz_test/dpdk/kernel/linux/igb_uio$ sudo /home/jcarlon/zzz_test/dpdk/usertools/dpdk-devbind.py -b igb_uio 04:00.0 04:00.1
+
 
     # When all containers are created, change 'myself' user password to no password
     # The command is repeated because usually the first time fails.
@@ -1107,15 +1113,30 @@ function bin_install() {
     # Create directory structure
     sudo mkdir -p "$TARGET_LIB_DIR"
 
-    # Verify source libraries
+
+        # Verify source libraries
     if [ ! -d "$DPDK_LIB_DIR" ] || [ -z "$(ls -A $DPDK_LIB_DIR/librte* 2>/dev/null)" ]; then
         echo_error "Missing DPDK libraries in $DPDK_LIB_DIR"
-        echo_error "Reinstall DPDK and try again"
         exit 1
     fi
 
+    # Deploy libraries with full path structure
+    sudo rsync -avR "$DPDK_LIB_DIR/./" "$DIR_ROOTFS/"
+
+    # Update container library cache
+    if [ -n "${LXC_CONT_NAMES[*]}" ]; then
+        for container in "${LXC_CONT_NAMES[@]}"; do
+            container_rootfs="/var/lib/lxc/$container/rootfs"
+            sudo rsync -avR "$DPDK_LIB_DIR/./" "$container_rootfs/"
+            sudo lxc-attach -n $container -- ldconfig
+        done
+    fi
+
+
+
     # Copy libraries with full path preservation
     sudo rsync -avR "$DPDK_LIB_DIR/./librte"* "$DIR_ROOTFS"
+    
 
     echo_warning "putting nfv_run_in_container into the containers! , names : $LXC_CONT_NAMES"
 
