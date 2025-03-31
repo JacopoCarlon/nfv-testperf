@@ -526,16 +526,19 @@ function start_vswitch() {
 
         ;;
     sriov)
-        echo "DIR_ROOTFS DIR_ROOTFS ; RTE_TARGET RTE_TARGET ; RTE_SDK RTE_SDK"
-
         SRIOV_TESTPMD_CONF=/tmp/sriov.conf
 
+
+        echo "DIR_ROOTFS $DIR_ROOTFS ; RTE_TARGET $RTE_TARGET ; RTE_SDK $RTE_SDK"
         echo "DIR_SCRIPT : $DIR_SCRIPT ; SRIOV_TESTPMD_CONF=$SRIOV_TESTPMD_CONF"
+
 
         # TODO: SCALE SR-IOV
         # FIXME: File in script dir? Hell no
         # Binds SR-IOV devices to DPDK driver and resets them, takes a while
         "$DIR_SCRIPT/nfv_sriov_tools" "$filename" -b igb_uio
+
+        echo "done sriov_tools bind to igb_uio"
 
         sudo rm -f "$SRIOV_TESTPMD_CONF"
         for i in "${!LXC_CONT_NAMES[@]}"; do
@@ -543,13 +546,20 @@ function start_vswitch() {
         done
         echo "" >>"$SRIOV_TESTPMD_CONF"
 
+        echo "done sriov conf for-cycle"
+
         # Start PF handler for PF0
         screen -d -S screen_vswitch $(log_vswitch_option) -m \
             sudo "$PMD" -l "$SWITCH_CPUS" -n 2 --socket-mem 1024,0 --file-prefix=host \
             -w 04:00.0 -- --cmdline-file="${SRIOV_TESTPMD_CONF}"
 
+        echo "will sleep for 80 seconds..."
+
         # Some sleep needed, mabe not 80s, but better safe than sorry
         sleep 80s
+
+        echo "out of sleep !"
+        
         ;;
     linux-bridge)
         # This is not an actual switch, it is just used to start tests using normal kernel sockets
