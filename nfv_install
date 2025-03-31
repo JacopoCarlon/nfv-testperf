@@ -1281,8 +1281,8 @@ function bin_install() {
 
     # Install CPU mask utility
     echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
-    make -C "$DIR_CPUMASK" -j "$MAKECPUS" clean
-    make -C "$DIR_CPUMASK" -j "$MAKECPUS"
+    sudo make -C "$DIR_CPUMASK" -j "$MAKECPUS" clean
+    sudo make -C "$DIR_CPUMASK" -j "$MAKECPUS"
     
     # Create target directory and copy with validation
     echo_action "DEPLOY CPU MASK UTILITY TO ROOTFS"
