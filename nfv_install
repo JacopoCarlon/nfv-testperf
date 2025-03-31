@@ -1142,6 +1142,8 @@ function finalize_install() {
         sudo sh -c "echo \"$HUGELINE\" >> /etc/fstab"
     fi
 
+    echo "will generate rcfile here : $NFV_RCFILE "
+
     generate_rcfile
 
     # Add rcfile to user profile (sh/bash/zsh)
