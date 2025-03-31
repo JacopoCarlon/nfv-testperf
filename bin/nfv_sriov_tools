@@ -5,6 +5,9 @@ dpdk_devbind="${RTE_SDK}/usertools/dpdk-devbind.py"
 
 # This is used to get reliably the original path of the script
 # Source: https://stackoverflow.com/a/246128/7030275
+
+echo " starting while in nsf_sriov_tools"
+
 SOURCE="${BASH_SOURCE[0]}"
 # Resolve $SOURCE until the file is no longer a symlink
 while [ -h "$SOURCE" ]; do
@@ -15,6 +18,8 @@ while [ -h "$SOURCE" ]; do
     [[ $SOURCE != /* ]] && SOURCE="$DIR_SCRIPT/$SOURCE"
 done
 DIR_SCRIPT="$(cd -P "$(dirname "$SOURCE")" >/dev/null 2>&1 && pwd)"
+
+echo " done while in nsf_sriov_tools"
 
 escapeForwardSlashes() {
     # Validate parameters

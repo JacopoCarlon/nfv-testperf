@@ -1,7 +1,6 @@
 # Variables that can be overwritten from outside
-DIR_ROOTFS ?= $(NFV_PATH)/install/rootfs
+DIR_ROOTFS ?= $(HOME)/testbed/install/rootfs
 BUILD ?= release
-DIR_ROOTFS	?= ~/testbed/install/rootfs
 RTE_TARGET	?= x86_64-native-linuxapp-gcc
 RTE_SDK		?= $(HOME)/zzz_test/dpdk
 
