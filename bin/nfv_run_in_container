@@ -92,7 +92,7 @@ fi
 . "/conf/${whichcont}_rc.conf"
 
 # Translate configuration from file content to variables used in previous version
-cpumask=$(/cpu_list_to_mask "$CONT_CPU")
+cpumask=$(/usr/bin/cpu_list_to_mask "$CONT_CPU")
 cpulist=$CONT_CPU
 #localmac=$CONT_MAC
 #localip=$CONT_IP
