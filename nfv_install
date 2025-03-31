@@ -482,7 +482,7 @@ EOF
     ##      sudo rsync -a --delete "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs/"
     ##  done
     for i in "${!LXC_CONT_NAMES[@]}"; do
-        sudo lxc-config -n ${LXC_CONT_NAMES[i]} set rootfs.path $DIR_ROOTFS
+        sudo lxc-config ${LXC_CONT_NAMES[i]} set rootfs.path $DIR_ROOTFS
     done
 
     echo_warning "lxc_install : rootfs should be in containers"
