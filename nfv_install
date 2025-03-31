@@ -1200,6 +1200,7 @@ function bin_install() {
 
 
 
+
     # Copy binaries to rootfs
     echo_action "INSTALL BIN IN ROOTFS"
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
@@ -1237,6 +1238,17 @@ function bin_install() {
 
 
 
+
+    # Install CPU mask utility
+    echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
+    make -C "$DIR_CPUMASK" -j "$MAKECPUS" clean
+    make -C "$DIR_CPUMASK" -j "$MAKECPUS" install
+    
+    echo_action "INSTALL CPU_LIST_TO_MASK binary to rootfs"
+    cp -v "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
+
+
+
     # Copy libraries with full path preservation
     sudo rsync -avR "$DPDK_LIB_DIR/./librte"* "$DIR_ROOTFS"
 
@@ -1258,6 +1270,7 @@ function bin_install() {
                 --include='nfv_run_in_container' \
                 --include='testpmd' \
                 --include='testapp' \
+                --include='cpu_list_to_mask' \
                 --exclude='*' \
                 "$DIR_ROOTFS/" "$container_rootfs/"
                 
@@ -1279,43 +1292,7 @@ function bin_install() {
 
 
 
-    # Install CPU mask utility
-    echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
-    sudo make -C "$DIR_CPUMASK" -j "$MAKECPUS" clean
-    sudo make -C "$DIR_CPUMASK" -j "$MAKECPUS"
-    
-    # Create target directory and copy with validation
-    echo_action "DEPLOY CPU MASK UTILITY TO ROOTFS"
-    sudo mkdir -p "$DIR_ROOTFS/usr/bin"
-    if [ -f "$DIR_CPUMASK/cpu_list_to_mask" ]; then
-        sudo cp -v "$DIR_CPUMASK/cpu_list_to_mask" "$DIR_ROOTFS/usr/bin/"
-        sudo chmod +x "$DIR_ROOTFS/usr/bin/cpu_list_to_mask"
-    else
-        echo_error "Missing cpu_list_to_mask binary after build!"
-        exit 1
-    fi
 
-    # Deploy to containers with directory creation
-    if [ -n "${LXC_CONT_NAMES[*]}" ]; then
-        echo_action "DEPLOYING CPU MASK UTILITY TO CONTAINERS"
-        for container in "${LXC_CONT_NAMES[@]}"; do
-            container_rootfs="/var/lib/lxc/$container/rootfs"
-            target_dir="$container_rootfs/usr/bin"
-            
-            echo "Updating $container:"
-            sudo mkdir -p "$target_dir"
-            
-            if sudo rsync -av \
-                "$DIR_ROOTFS/usr/bin/cpu_list_to_mask" \
-                "$target_dir/"; then
-                sudo chmod +x "$target_dir/cpu_list_to_mask"
-                echo "Verified in container: $(sudo ls -l $target_dir/cpu_list_to_mask)"
-            else
-                echo_error "Failed to deploy to $container"
-                exit 1
-            fi
-        done
-    fi
 
     # Install scripts and configs
     echo_action "INSTALL COMMANDS (SCRIPTS)"
