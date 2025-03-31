@@ -5,7 +5,7 @@ dpdk_devbind="${RTE_SDK}/usertools/dpdk-devbind.py"
 
 # need to go on pleaseee
 ## RTE_SDK = "/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk"
-dpdk_devbind="/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk/usertools/dpdk-devbind.py"
+## dpdk_devbind="/home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk/usertools/dpdk-devbind.py"
 
 
 
@@ -133,7 +133,7 @@ bind() {
 
         # Need to comment out lines that require
         # SR-IOV device to start containers
-        # in each container configuration file
+        # in each contaicreate_vfs_dpdkner configuration file
 
         for i in "${!LXC_CONT_NAMES[@]}"; do
             comment_out_pattern '^\s*lxc.mount.entry\s*=\s*/dev/uio' \
@@ -143,6 +143,7 @@ bind() {
         # comment_out_pattern '^\s*lxc.mount.entry\s*=\s*/dev/uio' /var/lib/lxc/DPDKC1/config
         ;;
     igb_uio)
+        echo " --- starting bind igb_uio ; dpdk_devbind = $dpdk_devbind !!! "
         create_vfs_dpdk ${#LXC_CONT_NAMES[@]}
         bind_vfs igb_uio
 
