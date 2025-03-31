@@ -333,7 +333,6 @@ function rootfs_install() {
     sudo mkdir -p "$DIR_ROOTFS/var/run/hugepages"
 
 
-    Copy
     # After device nodes
     echo_action "ADDING CORE UTILITIES"
     # From host to rootfs
