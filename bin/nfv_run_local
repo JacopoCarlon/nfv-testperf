@@ -526,7 +526,11 @@ function start_vswitch() {
 
         ;;
     sriov)
+        echo "DIR_ROOTFS DIR_ROOTFS ; RTE_TARGET RTE_TARGET ; RTE_SDK RTE_SDK"
+
         SRIOV_TESTPMD_CONF=/tmp/sriov.conf
+
+        echo "DIR_SCRIPT : $DIR_SCRIPT ; SRIOV_TESTPMD_CONF=$SRIOV_TESTPMD_CONF"
 
         # TODO: SCALE SR-IOV
         # FIXME: File in script dir? Hell no
