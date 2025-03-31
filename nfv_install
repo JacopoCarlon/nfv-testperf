@@ -1081,6 +1081,8 @@ function bin_install() {
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
 
+    echo_warning "DIR_SCRIPT:$DIR_SCRIPT , need to copy nfv_run_in_container into DIR_ROOTFS:$DIR_ROOTFS"
+
 
     # Install scripts and configs
     echo_action "INSTALL COMMANDS (SCRIPTS)"
