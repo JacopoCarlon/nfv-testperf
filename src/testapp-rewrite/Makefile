@@ -1,8 +1,9 @@
 # Variables that can be overwritten from outside
-DIR_ROOTFS ?= $(HOME)/testbed/install/rootfs
-BUILD ?= release
-RTE_TARGET	?= x86_64-native-linuxapp-gcc
-RTE_SDK		?= $(HOME)/zzz_test/dpdk
+DIR_ROOTFS ?= /home/jcarlon/nfv_testperf/install/roofts/ 
+BUILD ?= release 
+RTE_TARGET	?= x86_64-native-linuxapp-gcc 
+RTE_SDK = /home/jcarlon/nfv_testperf/install/dpdk-25.03/share/dpdk/
+
 
 # DPDK configuration using pkg-config
 PKG_CONFIG ?= pkg-config
