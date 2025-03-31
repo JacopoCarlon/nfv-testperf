@@ -286,6 +286,8 @@ function rootfs_install() {
     ### cp -a "$DIR_BUILDCORE_BUILD/bb_build-1.29.3/_install" "$DIR_ROOTFS"
     cp -a "$DIR_BUILDCORE_BUILD/bb_build-1.36.1/_install" "$DIR_ROOTFS"
 
+    ## rootfs should not be root bound
+    mkdir -p "$DIR_ROOTFS"
 
     # Create essential directories
     sudo mkdir -p "$DIR_ROOTFS/sbin"
