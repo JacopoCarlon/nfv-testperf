@@ -1240,15 +1240,26 @@ function bin_install() {
             sudo mkdir -p "$container_rootfs/usr/local/lib/x86_64-linux-gnu"
             sudo rsync -av "$DPDK_LIB_DIR/librte"* "$container_rootfs/usr/local/lib/x86_64-linux-gnu/"
 
-            # 3. Force-copy libfdt libraries with resolved symlinks
+            # 3_a. Deploy system libraries (libbsd, libnuma, etc.)
+            sudo mkdir -p "$container_rootfs/lib/x86_64-linux-gnu"
+            sudo rsync -avL /lib/x86_64-linux-gnu/libbsd.so* \
+                            /lib/x86_64-linux-gnu/libnuma.so* \
+                            /lib/x86_64-linux-gnu/libm.so* \
+                            /lib/x86_64-linux-gnu/libc.so* \
+                            /lib/x86_64-linux-gnu/libmd.so* \
+                            "$container_rootfs/lib/x86_64-linux-gnu/"
+
+
+            # 3_b. Force-copy libfdt libraries with resolved symlinks
             sudo mkdir -p "$container_rootfs/usr/lib/x86_64-linux-gnu"
-            sudo rsync -avL /usr/lib/x86_64-linux-gnu/libfdt.* "$container_rootfs/usr/lib/x86_64-linux-gnu/"
+            sudo rsync -avL /usr/lib/x86_64-linux-gnu/libfdt.* \
+                          "$container_rootfs/usr/lib/x86_64-linux-gnu/"
 
             # 4. Configure library paths
             sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
             echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/dpdk.conf"
             echo "/usr/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/system-libs.conf"
-
+            echo "/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/core-libs.conf"
 
             # 5. Update permissions 
             sudo chmod +x "$container_rootfs/nfv_run_in_container" 2>/dev/null || true
