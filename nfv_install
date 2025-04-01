@@ -1176,12 +1176,12 @@ function bin_install() {
     fi
 
     # Deploy DPDK libraries
-    sudo rsync -avR "$DPDK_LIB_DIR/./" "$DIR_ROOTFS/"
+    sudo rsync -aR "$DPDK_LIB_DIR/./" "$DIR_ROOTFS/"
 
 
     # Deploy libfdt libraries with cp
     sudo mkdir -p "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu"
-    sudo cp -av /usr/lib/x86_64-linux-gnu/libfdt.so* "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/"
+    sudo cp -a /usr/lib/x86_64-linux-gnu/libfdt.so* "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/"
 
 
     # Update container library cache
@@ -1227,7 +1227,7 @@ function bin_install() {
             # Create container rootfs if missing
             sudo mkdir -p "$container_rootfs"
             
-            # Sync from central rootfs to container
+            # 1. Sync core binaries from central rootfs
             sudo rsync -av --delete \
                 --include='nfv_run_in_container' \
                 --include='testpmd' \
@@ -1236,18 +1236,28 @@ function bin_install() {
                 --exclude='*' \
                 "$DIR_ROOTFS/" "$container_rootfs/"
                 
-            # Sync libraries
+            # 2. Deploy DPDK libraries
             sudo mkdir -p "$container_rootfs/usr/local/lib/x86_64-linux-gnu"
             sudo rsync -av "$DPDK_LIB_DIR/librte"* "$container_rootfs/usr/local/lib/x86_64-linux-gnu/"
 
-            # Ensure correct permissions
+            # 3. Force-copy libfdt libraries with resolved symlinks
+            sudo mkdir -p "$container_rootfs/usr/lib/x86_64-linux-gnu"
+            sudo cp -L /usr/lib/x86_64-linux-gnu/libfdt.so* "$container_rootfs/usr/lib/x86_64-linux-gnu/"
+
+            # 4. Configure library paths
+            sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
+            echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/dpdk.conf"
+            echo "/usr/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/system-libs.conf"
+
+
+            # 5. Update permissions 
             sudo chmod +x "$container_rootfs/nfv_run_in_container" 2>/dev/null || true
             sudo chmod +x "$container_rootfs/testpmd" 2>/dev/null || true
             sudo chmod +x "$container_rootfs/testapp" 2>/dev/null || true
 
-            sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
-            echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/dpdk.conf"
+            # 6. Update library cache
             sudo lxc-attach -n "$container" -- ldconfig
+
         done
     else
         echo_warning "No containers defined in lxcconfrc.bash - skipping container deployment"
