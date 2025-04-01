@@ -1220,12 +1220,13 @@ function bin_install() {
     # Deploy libraries with full path structure
     sudo rsync -avR "$DPDK_LIB_DIR/./" "$DIR_ROOTFS/"
     ## sudo rsync -avR "$LIBFDT_PATH" "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/" 
-    sudo rsync -avR "$LIBFDT_PATH" "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/"
+    sudo rsync -av /usr/lib/x86_64-linux-gnu/libfdt.so* "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/"
 
     # Update container library cache
     if [ -n "${LXC_CONT_NAMES[*]}" ]; then
         for container in "${LXC_CONT_NAMES[@]}"; do
             container_rootfs="/var/lib/lxc/$container/rootfs"
+            
             sudo rsync -avR "$DPDK_LIB_DIR/./" "$container_rootfs/"
 
             sudo mkdir -p "$container_rootfs/usr/lib/x86_64-linux-gnu"
