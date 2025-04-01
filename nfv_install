@@ -292,14 +292,14 @@ function rootfs_install() {
     ## !! TODO : decide if sudo or not
 
     # Create essential directories
-    sudo mkdir -p "$DIR_ROOTFS/sbin"
-    sudo mkdir -p "$DIR_ROOTFS/lib/x86_64-linux-gnu"
+    mkdir -p "$DIR_ROOTFS/sbin"
+    mkdir -p "$DIR_ROOTFS/lib/x86_64-linux-gnu"
 
     # Copy critical system binaries
     echo_action "INSTALLING ESSENTIAL SYSTEM BINARIES"
-    sudo cp /sbin/ldconfig "$DIR_ROOTFS/sbin/"
-    sudo cp /lib/x86_64-linux-gnu/libc.so.6 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
-    sudo cp /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    cp /sbin/ldconfig "$DIR_ROOTFS/sbin/"
+    cp /lib/x86_64-linux-gnu/libc.so.6 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    cp /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
 
 
     # Copy libnuma library into container filesystem
@@ -316,60 +316,60 @@ function rootfs_install() {
 
     # Create full Unix directory structure
     echo_action "CREATING UNIX DIRECTORY STRUCTURE"
-    sudo mkdir -p "$DIR_ROOTFS/usr"
-    sudo mkdir -p "$DIR_ROOTFS/usr/bin"
-    sudo mkdir -p "$DIR_ROOTFS/usr/sbin"
-    sudo mkdir -p "$DIR_ROOTFS/usr/lib"
-    sudo mkdir -p "$DIR_ROOTFS/var/log"
-    sudo mkdir -p "$DIR_ROOTFS/run"
+    mkdir -p "$DIR_ROOTFS/usr"
+    mkdir -p "$DIR_ROOTFS/usr/bin"
+    mkdir -p "$DIR_ROOTFS/usr/sbin"
+    mkdir -p "$DIR_ROOTFS/usr/lib"
+    mkdir -p "$DIR_ROOTFS/var/log"
+    mkdir -p "$DIR_ROOTFS/run"
 
     echo_action "CREATING ESSENTIAL DEVICE NODES"
     # Create essential dirs 
-    sudo mkdir -p "$DIR_ROOTFS/dev"
-    sudo mkdir -p "$DIR_ROOTFS/proc"
-    sudo mkdir -p "$DIR_ROOTFS/sys"
-    sudo mkdir -p "$DIR_ROOTFS/tmp"
+    mkdir -p "$DIR_ROOTFS/dev"
+    mkdir -p "$DIR_ROOTFS/proc"
+    mkdir -p "$DIR_ROOTFS/sys"
+    mkdir -p "$DIR_ROOTFS/tmp"
 
     # Create device nodes
-    sudo mknod -m 666 "$DIR_ROOTFS/dev/null" c 1 3
-    sudo mknod -m 666 "$DIR_ROOTFS/dev/zero" c 1 5
-    sudo mknod -m 666 "$DIR_ROOTFS/dev/urandom" c 1 9
-    sudo mknod -m 666 "$DIR_ROOTFS/dev/tty" c 5 0
+    mknod -m 666 "$DIR_ROOTFS/dev/null" c 1 3
+    mknod -m 666 "$DIR_ROOTFS/dev/zero" c 1 5
+    mknod -m 666 "$DIR_ROOTFS/dev/urandom" c 1 9
+    mknod -m 666 "$DIR_ROOTFS/dev/tty" c 5 0
 
     # Mount points
-    sudo mkdir -p "$DIR_ROOTFS/dev/pts"
-    sudo mkdir -p "$DIR_ROOTFS/dev/shm"
+    mkdir -p "$DIR_ROOTFS/dev/pts"
+    mkdir -p "$DIR_ROOTFS/dev/shm"
 
     # Directory structure
-    sudo mkdir -p "$DIR_ROOTFS/var/run/VIO"
-    sudo mkdir -p "$DIR_ROOTFS/var/run/hugepages"
+    mkdir -p "$DIR_ROOTFS/var/run/VIO"
+    mkdir -p "$DIR_ROOTFS/var/run/hugepages"
 
 
     # After device nodes
     echo_action "ADDING CORE UTILITIES"
     # From host to rootfs
-    sudo cp -v /bin/busybox "$DIR_ROOTFS/bin/"
+    cp -v /bin/busybox "$DIR_ROOTFS/bin/"
 
 
     # Essential binaries
-    sudo cp -v /usr/bin/passwd "$DIR_ROOTFS/usr/bin/"
+    ## ## cp -v /usr/bin/passwd "$DIR_ROOTFS/usr/bin/"
 
-    sudo cp -av /sbin/ldconfig "$DIR_ROOTFS/sbin/"
-    sudo cp -av /sbin/ldconfig.real "$DIR_ROOTFS/sbin/"
-    sudo chmod 755 "$DIR_ROOTFS/sbin/ldconfig"
-    sudo chmod 755 "$DIR_ROOTFS/sbin/ldconfig.real"
+    cp -av /sbin/ldconfig "$DIR_ROOTFS/sbin/"
+    cp -av /sbin/ldconfig.real "$DIR_ROOTFS/sbin/"
+    chmod 755 "$DIR_ROOTFS/sbin/ldconfig"
+    chmod 755 "$DIR_ROOTFS/sbin/ldconfig.real"
 
 
     # Add library cache configuration
     # Add user during rootFS creation
     echo_action "CONFIGURING LIBRARY PATHS"
-    sudo mkdir -p "$DIR_ROOTFS/etc/ld.so.conf.d"
+    mkdir -p "$DIR_ROOTFS/etc/ld.so.conf.d"
     echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$DIR_ROOTFS/etc/ld.so.conf.d/dpdk.conf"
     echo "/lib/x86_64-linux-gnu" | sudo tee -a "$DIR_ROOTFS/etc/ld.so.conf.d/basic.conf"
 
-    sudo cp -v /lib/x86_64-linux-gnu/libcrypt.so.1 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
-    sudo cp -v /lib/x86_64-linux-gnu/libc.so.6 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
-    sudo cp -v /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    cp -v /lib/x86_64-linux-gnu/libcrypt.so.1 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    cp -v /lib/x86_64-linux-gnu/libc.so.6 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
+    cp -v /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
 
 
     # TODO: a directory where to put user-config for each container
@@ -387,8 +387,8 @@ function rootfs_install() {
     echo "myself:x:1000:" | sudo tee -a "$DIR_ROOTFS/etc/group"
 
     # Create home directory
-    sudo mkdir -p "$DIR_ROOTFS/home/myself"
-    sudo chown 1000:1000 "$DIR_ROOTFS/home/myself"
+    mkdir -p "$DIR_ROOTFS/home/myself"
+    chown 1000:1000 "$DIR_ROOTFS/home/myself"
 
 
     echo_action "Done creating myself in ROOTFS !"
@@ -401,9 +401,9 @@ function rootfs_remove() {
     echo_section "Removing the rootfs"
 
     echo_action "RM $DIR_BUILDCORE"
-    rm -rf "$DIR_BUILDCORE"
+    sudo rm -rf "$DIR_BUILDCORE"
     echo_action "RM $DIR_BUILDCORE_BUILD"
-    rm -rf "$DIR_BUILDCORE_BUILD"
+    sudo rm -rf "$DIR_BUILDCORE_BUILD"
     echo_action "RM $DIR_ROOTFS"
     sudo rm -rf "$DIR_ROOTFS"
 
