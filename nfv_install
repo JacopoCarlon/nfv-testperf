@@ -1189,12 +1189,12 @@ function bin_install() {
     # Verify built binary name as <testapp> only
     if [ -f "$DIR_TESTAPP/testapp-rewrite" ]; then
         echo_action "RENAME TO GENERIC TESTAPP NAME"
-        mv -v "$DIR_TESTAPP/testapp-rewrite" "$DIR_TESTAPP/testapp"
+        mv "$DIR_TESTAPP/testapp-rewrite" "$DIR_TESTAPP/testapp"
     fi
 
     # Copy to rootfs with consistent name
     echo_action "INSTALL TESTAPP BINARY"
-    cp -v "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
+    cp "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
 
     # Copy binaries to rootfs
     echo_action "INSTALL BIN IN ROOTFS"
@@ -1219,7 +1219,8 @@ function bin_install() {
 
     # Deploy libraries with full path structure
     sudo rsync -avR "$DPDK_LIB_DIR/./" "$DIR_ROOTFS/"
-    sudo rsync -avR "$LIBFDT_PATH" "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/" 
+    ## sudo rsync -avR "$LIBFDT_PATH" "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/" 
+    sudo rsync -avR "$LIBFDT_PATH" "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/"
 
     # Update container library cache
     if [ -n "${LXC_CONT_NAMES[*]}" ]; then
@@ -1228,7 +1229,7 @@ function bin_install() {
             sudo rsync -avR "$DPDK_LIB_DIR/./" "$container_rootfs/"
 
             sudo mkdir -p "$container_rootfs/usr/lib/x86_64-linux-gnu"
-            sudo rsync -avR "$LIBFDT_PATH" "$container_rootfs/usr/lib/x86_64-linux-gnu/"
+            sudo rsync -av /usr/lib/x86_64-linux-gnu/libfdt.so* "$container_rootfs/usr/lib/x86_64-linux-gnu/"
 
             sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
             echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/dpdk.conf"
@@ -1243,7 +1244,7 @@ function bin_install() {
     make -C "$DIR_CPUMASK" -j "$MAKECPUS" install
     
     echo_action "INSTALL CPU_LIST_TO_MASK binary to rootfs"
-    cp -v "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
+    cp "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
 
     # Copy libraries with full path preservation
     sudo rsync -avR "$DPDK_LIB_DIR/./librte"* "$DIR_ROOTFS"
