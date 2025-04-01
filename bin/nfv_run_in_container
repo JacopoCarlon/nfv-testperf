@@ -147,6 +147,7 @@ fi
 #echo "COMMAND: taskset ${cpumask} /testapp ${command} ${command_args} -- ${dpdk_args}"
 
 set -x
-taskset "${cpumask}" /testapp "${command}" ${command_args} -- ${dpdk_args}
+##taskset "${cpumask}" /testapp "${command}" ${command_args} -- ${dpdk_args}
+LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH taskset "${cpumask}" /testapp "${command}" ${command_args} -- ${dpdk_args}
 
 exit 0

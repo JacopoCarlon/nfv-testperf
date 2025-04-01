@@ -504,7 +504,7 @@ function lxc_install() {
     done
 
 
-    # First clear a few configuration files
+    # First clear a few configuration filesfor container in "${LXC_CONT_NAMES[@]}"
     truncate -s 0 "$CONF_SRIOV_DEVLIST"
     truncate -s 0 "$CONF_SRIOV_TESTPMD"
 
@@ -566,10 +566,7 @@ EOF
 
     echo "after magic, move rootfs to containers before start"
 
-
-
     ## manually copy rootfs to var/lib/lxc/dpdk_c0/rootfs/
-
     #### sudo cp works , but rsync might be better tbh
     ## sudo cp -r "$DIR_ROOTFS/" "/var/lib/lxc/${LXC_CONT_NAMES[i]}/rootfs"
     for i in "${!LXC_CONT_NAMES[@]}"; do
@@ -586,9 +583,6 @@ EOF
             --include='/lib/x86_64-linux-gnu' \
             "$DIR_ROOTFS/" "$container_rootfs/"
     done
-
-
-
 
     # Container validation and startup
     for container in "${LXC_CONT_NAMES[@]}"; do
@@ -732,8 +726,6 @@ function dpdk_install() {
 
 
     ## meson setup --wipe -Dplatform=generic -Dbuildtype=debugoptimized -Dlibdir=lib/x86_64-linux-gnu -Denable_drivers=net/intel/i40e -Denable_kmods=true -Denable_apps=l3fwd-power -Dexamples=l2fwd,l3fwd,l3fwd-power build
-
-
 
     meson setup \
         --wipe \
@@ -1169,20 +1161,15 @@ function old_bin_install() {
 function bin_install() {
     echo_section "Installing custom scripts and binaries"
     
-
     # Set DPDK environment for pkg-config
     export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH"
     export LD_LIBRARY_PATH="/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
     export DIR_ROOTFS=$DIR_ROOTFS
 
-
-
     ##if [ -f "$DIR_INSTALL_DATA/lxcconfrc.bash" ]; then
     ##    source "$DIR_INSTALL_DATA/lxcconfrc.bash" || true
     ##fi
     [ -f "$DIR_INSTALL_DATA/lxcconfrc.bash" ] && source "$DIR_INSTALL_DATA/lxcconfrc.bash" || true
-
-
 
     echo_action "INSTALL TESTAPP DEP [ROOTFS]"
     [ ! -e "$ROOTFS_CHECK_FILE" ] && rootfs_install
@@ -1190,11 +1177,8 @@ function bin_install() {
     echo_action "INSTALL TESTAPP DEP [DPDK]"
     [ ! -e "$DPDK_CHECK_FILE" ] && dpdk_install
 
-
-
     echo_section "VERIFY DPDK LIBRARIES"
     ls -l /usr/local/lib/x86_64-linux-gnu/librte_*
-
 
     # Build and install testapp
     ### DIR_TESTAPP : ....src/testapp-rewrite !!!
@@ -1212,16 +1196,10 @@ function bin_install() {
     echo_action "INSTALL TESTAPP BINARY"
     cp -v "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
 
-
-
-
     # Copy binaries to rootfs
     echo_action "INSTALL BIN IN ROOTFS"
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
-
-
-
 
     # Copy DPDK libraries
     echo_action "DEPLOY DPDK LIBRARIES"
@@ -1231,8 +1209,7 @@ function bin_install() {
     # Create directory structure
     sudo mkdir -p "$TARGET_LIB_DIR"
 
-
-        # Verify source libraries
+    # Verify source libraries
     if [ ! -d "$DPDK_LIB_DIR" ] || [ -z "$(ls -A $DPDK_LIB_DIR/librte* 2>/dev/null)" ]; then
         echo_error "Missing DPDK libraries in $DPDK_LIB_DIR"
         exit 1
@@ -1247,11 +1224,11 @@ function bin_install() {
             container_rootfs="/var/lib/lxc/$container/rootfs"
             sudo rsync -avR "$DPDK_LIB_DIR/./" "$container_rootfs/"
             sudo lxc-attach -n $container -- ldconfig
+            sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
+            echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/dpdk.conf"
+            sudo lxc-attach -n "$container" -- ldconfig
         done
     fi
-
-
-
 
     # Install CPU mask utility
     echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
@@ -1261,11 +1238,8 @@ function bin_install() {
     echo_action "INSTALL CPU_LIST_TO_MASK binary to rootfs"
     cp -v "$DIR_TESTAPP/testapp" "$DIR_ROOTFS/testapp"
 
-
-
     # Copy libraries with full path preservation
     sudo rsync -avR "$DPDK_LIB_DIR/./librte"* "$DIR_ROOTFS"
-
 
     echo_warning "putting nfv_run_in_container into the containers! , names : $LXC_CONT_NAMES"
 
@@ -1296,17 +1270,16 @@ function bin_install() {
             sudo chmod +x "$container_rootfs/nfv_run_in_container" 2>/dev/null || true
             sudo chmod +x "$container_rootfs/testpmd" 2>/dev/null || true
             sudo chmod +x "$container_rootfs/testapp" 2>/dev/null || true
+
+            sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
+            echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/dpdk.conf"
+            sudo lxc-attach -n "$container" -- ldconfig
         done
     else
         echo_warning "No containers defined in lxcconfrc.bash - skipping container deployment"
     fi
 
-
     echo_warning "DIR_SCRIPT:$DIR_SCRIPT , need to copy nfv_run_in_container into DIR_ROOTFS:$DIR_ROOTFS"
-
-
-
-
 
     # Install scripts and configs
     echo_action "INSTALL COMMANDS (SCRIPTS)"
