@@ -1242,7 +1242,7 @@ function bin_install() {
 
             # 3. Force-copy libfdt libraries with resolved symlinks
             sudo mkdir -p "$container_rootfs/usr/lib/x86_64-linux-gnu"
-            sudo cp -L /usr/lib/x86_64-linux-gnu/libfdt.so* "$container_rootfs/usr/lib/x86_64-linux-gnu/"
+            sudo rsync -avL /usr/lib/x86_64-linux-gnu/libfdt.* "$container_rootfs/usr/lib/x86_64-linux-gnu/"
 
             # 4. Configure library paths
             sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
