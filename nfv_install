@@ -306,7 +306,7 @@ function rootfs_install() {
     cp /usr/lib/x86_64-linux-gnu/libnuma.so.1 "$DIR_ROOTFS/lib"
 
 
-    sudo chmod +x "$DIR_ROOTFS/sbin/ldconfig"
+    chmod +x "$DIR_ROOTFS/sbin/ldconfig"
 
 
     # VERY IMPORTANT: Remove ttyS0 from inittab file, otherwise you get rogue
@@ -364,8 +364,8 @@ function rootfs_install() {
     # Add user during rootFS creation
     echo_action "CONFIGURING LIBRARY PATHS"
     mkdir -p "$DIR_ROOTFS/etc/ld.so.conf.d"
-    echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$DIR_ROOTFS/etc/ld.so.conf.d/dpdk.conf"
-    echo "/lib/x86_64-linux-gnu" | sudo tee -a "$DIR_ROOTFS/etc/ld.so.conf.d/basic.conf"
+    echo "/usr/local/lib/x86_64-linux-gnu" | tee "$DIR_ROOTFS/etc/ld.so.conf.d/dpdk.conf"
+    echo "/lib/x86_64-linux-gnu" | tee -a "$DIR_ROOTFS/etc/ld.so.conf.d/basic.conf"
 
     cp -v /lib/x86_64-linux-gnu/libcrypt.so.1 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
     cp -v /lib/x86_64-linux-gnu/libc.so.6 "$DIR_ROOTFS/lib/x86_64-linux-gnu/"
