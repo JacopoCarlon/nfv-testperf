@@ -1117,47 +1117,6 @@ function snabb_remove() {
 
 ################ CUSTOM PROGRAMS MANAGEMENT ################
 
-function old_bin_install() {
-    echo_section "Installing custom scripts and binaries"
-
-    echo_action "INSTALL TESTAPP DEP [ROOTFS]"
-    [ ! -e "$ROOTFS_CHECK_FILE" ] && rootfs_install
-
-    echo_action "INSTALL TESTAPP DEP [DPDK]"
-    [ ! -e "$DPDK_CHECK_FILE" ] && dpdk_install
-
-    dpdk_export_vars
-
-    export DIR_ROOTFS=$DIR_ROOTFS
-
-    # Installation is performed automatically by make command
-    echo_action "MAKE INSTALL TESTAPP (-j $MAKECPUS)"
-    make -C "$DIR_TESTAPP" -j "$MAKECPUS"
-
-    # Additional useful command
-    echo_action "MAKE INSTALL CPU_LIST_TO_MASK"
-    make -C "$DIR_CPUMASK" -j "$MAKECPUS"
-
-    echo_action "INSTALL BIN IN ROOTFS"
-    cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
-
-    if [ -e "$DPDK_CHECK_FILE" ]; then
-        cp "$DIR_DPDK_INSTALL/bin/testpmd" "$DIR_ROOTFS"
-    fi
-
-    echo_action "INSTALL COMMANDS (SCRIPTS)"
-    for f in "$DIR_BIN"/./*; do
-        if [[ ! "$f" =~ nfv_run_in_container ]] &&
-            [[ ! "$f" =~ README ]]; then
-            cp "$f" "$DIR_BIN_DST/"
-        fi
-    done
-
-    echo_action "INSTALL CONFIGURATIONS"
-    cp "${DIR_CONFIGURATIONS}/"* "${DIR_CONFIGRC}"
-}
-
-
 function bin_install() {
     echo_section "Installing custom scripts and binaries"
     
@@ -1201,11 +1160,10 @@ function bin_install() {
     cp "$DIR_SCRIPT/bin/nfv_run_in_container" "$DIR_ROOTFS"
     [ -e "$DPDK_CHECK_FILE" ] && cp "$(which testpmd)" "$DIR_ROOTFS"
 
-    # Copy DPDK libraries
+
+    # --- Copy DPDK libraries ---    
     echo_action "DEPLOY DPDK LIBRARIES"
     DPDK_LIB_DIR="/usr/local/lib/x86_64-linux-gnu"
-    LIBFDT_PATH="/usr/lib/x86_64-linux-gnu/libfdt.so*"
-
     TARGET_LIB_DIR="$DIR_ROOTFS/usr/local/lib/x86_64-linux-gnu"
 
     # Create directory structure
@@ -1217,21 +1175,28 @@ function bin_install() {
         exit 1
     fi
 
-    # Deploy libraries with full path structure
+    # Deploy DPDK libraries
     sudo rsync -avR "$DPDK_LIB_DIR/./" "$DIR_ROOTFS/"
-    ## sudo rsync -avR "$LIBFDT_PATH" "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/" 
-    sudo rsync -av /usr/lib/x86_64-linux-gnu/libfdt.so* "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/"
+
+
+    # Deploy libfdt libraries with cp
+    sudo mkdir -p "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu"
+    sudo cp -av /usr/lib/x86_64-linux-gnu/libfdt.so* "$DIR_ROOTFS/usr/lib/x86_64-linux-gnu/"
+
 
     # Update container library cache
     if [ -n "${LXC_CONT_NAMES[*]}" ]; then
         for container in "${LXC_CONT_NAMES[@]}"; do
             container_rootfs="/var/lib/lxc/$container/rootfs"
             
+            # Sync DPDK libraries
             sudo rsync -avR "$DPDK_LIB_DIR/./" "$container_rootfs/"
 
+            # Sync libfdt with cp
             sudo mkdir -p "$container_rootfs/usr/lib/x86_64-linux-gnu"
-            sudo rsync -av /usr/lib/x86_64-linux-gnu/libfdt.so* "$container_rootfs/usr/lib/x86_64-linux-gnu/"
+            sudo cp -av /usr/lib/x86_64-linux-gnu/libfdt.so* "$container_rootfs/usr/lib/x86_64-linux-gnu/"
 
+            # Configure ld.so.conf.d
             sudo mkdir -p "$container_rootfs/etc/ld.so.conf.d"
             echo "/usr/local/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/dpdk.conf"
             echo "/usr/lib/x86_64-linux-gnu" | sudo tee "$container_rootfs/etc/ld.so.conf.d/system-libs.conf"
