@@ -52,12 +52,14 @@ uncomment_pattern() {
 }
 
 unbind_pf() {
-    sudo "$dpdk_devbind" --force -u 04:00.0
+    echo "unbind bind_pf()"
+    sudo "$dpdk_devbind" --force -u 04:00.0 04:00.1
     sleep 2
 }
 
 unbind_all() {
-    sudo "$dpdk_devbind" --force -u 04:00.0
+    echo "unbind all"
+    sudo "$dpdk_devbind" --force -u 04:00.0 04:00.1
 
     for i in "${!LXC_CONT_NAMES[@]}"; do
         sudo "$dpdk_devbind" --force -u "${LXC_CONT_VFPCIS[i]}"
@@ -66,11 +68,13 @@ unbind_all() {
 }
 
 bind_pf() {
-    sudo "$dpdk_devbind" -b "$1" 04:00.0
+    echo "bind_pf() to $1"
+    sudo "$dpdk_devbind" -b "$1" 04:00.0 04:00.1
     sleep 2
 }
 
 bind_vfs() {
+    echo "bind_vfs()" 
     # sudo "$dpdk_devbind" -b $1 04:02.0 04:02.1
     for i in "${!LXC_CONT_NAMES[@]}"; do
         sudo "$dpdk_devbind" -b "$1" "${LXC_CONT_VFPCIS[i]}"
