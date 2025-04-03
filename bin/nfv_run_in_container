@@ -91,6 +91,8 @@ fi
 # Load local configuration from file
 . "/conf/${whichcont}_rc.conf"
 
+echo "--- loaded file from /conf/${whichcont}_rc.conf"
+
 # Translate configuration from file content to variables used in previous version
 cpumask=$(/cpu_list_to_mask "$CONT_CPU")
 cpulist=$CONT_CPU
@@ -98,6 +100,8 @@ cpulist=$CONT_CPU
 #localip=$CONT_IP
 pciaddr=$CONT_VFPCI
 vsock=$CONT_SOCK
+
+echo "--- target cpumask:$cpumask , cpulist:$cpulist"
 
 # They shall be provided somehow (can be given along with normal arguments after the first "--", inside command_args)
 remoteip=
