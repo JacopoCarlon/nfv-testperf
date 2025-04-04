@@ -45,11 +45,6 @@ LXC_CONT_VFDEVS=(       \
     vfio-pci 
 )
 
-LXC_CONT_VFPCIS=(       \
-    04:02.0             \
-    04:02.1             
-)
-
 LXC_CONT_SOCKS=(        \
     sock0               \
     sock1 

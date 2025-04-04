@@ -148,11 +148,11 @@ else
 fi
 
 #echo "REMAINING ARGS NUM: $#"
-echo "COMMAND: taskset ${cpumask} /testapp ${command} ${command_args} -- ${dpdk_args}"
+echo "COMMAND: taskset ${cpumask} ___ /testapp ${command} ___ ${command_args} ___ -- ${dpdk_args}"
 echo "!!!"
 
 set -x
 ##taskset "${cpumask}" /testapp "${command}" ${command_args} -- ${dpdk_args}
-LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH taskset "${cpumask}" /testapp "${command}" ${command_args} -- ${dpdk_args}
+LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH taskset "${cpumask}" /testapp "${command}" ${command_args} -- -s 0x1 ${dpdk_args}
 
 exit 0

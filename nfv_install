@@ -1356,6 +1356,9 @@ function finalize_install() {
     echo_section " end of finalization == end of installation !!!!!! "
 
     # I source the file to have everything available immediately
+    echo "sourcing $NFV_RCFILE that has been created !!!"
+    echo " --- ^^^ !!! "
+     
     source "$NFV_RCFILE"
 }
 
